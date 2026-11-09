@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minnesota • Rivers, land & belonging</title>
+<style>
+:root{--ink:#253d35;--muted:#657066;--paper:#f6f1e5;--line:#d8d0bd;--rust:#ae6247;--river:#466986;--green:#486654}
+*{box-sizing:border-box}
+body{margin:0;background:#eee8da;color:var(--ink);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+button,input{font:inherit}
+button,a,input{touch-action:manipulation}
+button{cursor:pointer;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible,[role=button]:focus-visible{outline:3px solid #b56c30;outline-offset:4px}
+button:disabled{opacity:.35;cursor:default}
+header{background:#233e34;color:#f7f1e2;padding:17px 28px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{font-size:11px;letter-spacing:2.6px;font-weight:700}
+.brand b{display:inline-grid;place-items:center;border:1px solid #aebca5;border-radius:50%;width:30px;height:30px;margin-right:10px;font-size:20px}
+.course{font-size:11px;letter-spacing:1px;opacity:.8}
+.intro{padding:24px 30px 21px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:2px;font-weight:750;color:var(--rust)}
+h1,h2,h3{font-family:Georgia,serif;font-weight:400;line-height:1.12;margin:0}
+h1{font-size:34px;margin:5px 0 7px}
+.intro p{color:var(--muted);margin:0;font-size:13px}
+.intro .pill{background:#e1e6da;padding:7px 13px;border-radius:24px;font-size:11px;white-space:nowrap}
+.workspace{margin:0 24px;background:var(--paper);border:1px solid var(--line);border-radius:12px 12px 0 0;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 348px;min-height:610px}
+.map-area{position:relative;min-width:0;display:flex;flex-direction:column;background:radial-gradient(ellipse at center,#f6f0dd,#eae3cf)}
+.map-toolbar{display:flex;justify-content:space-between;align-items:center;padding:13px 17px;border-bottom:1px solid #d8d0bd99;gap:10px;z-index:1}
+.map-toolbar span{font-size:11px;color:#586357}
+.map-toolbar strong{display:block;letter-spacing:1.3px;font-size:10px}
+.tools{display:flex;gap:4px}
+.icon{border:1px solid #c8c5b5;background:#f9f5e9;border-radius:5px;min-width:32px;min-height:32px;font-size:17px}
+.icon:hover{background:#e3e8da}
+.map-wrap{position:relative;flex:1;min-height:470px;overflow:hidden}
+.map-wrap>svg{width:100%;height:100%;position:absolute;inset:0;min-height:470px}
+.layer-bar{position:absolute;left:14px;top:12px;display:flex;flex-wrap:wrap;gap:5px;right:55px;z-index:2}
+.layer-bar label{cursor:pointer;background:#fbf8eedf;border:1px solid #ccc8b6;padding:5px 8px;border-radius:5px;font-size:10px;box-shadow:0 2px 6px #24372d08;display:flex;align-items:center;gap:5px}
+.layer-bar input{accent-color:var(--green);width:12px;height:12px;margin:0}
+.map-footer{padding:9px 16px;border-top:1px solid #d8d0bd99;font-size:10px;color:#5a655b;display:flex;justify-content:space-between;gap:10px;background:#f3eddf}
+.river-label{font:italic 12px Georgia,serif;fill:#3a5d7b;paint-order:stroke;stroke:#eee8d5;stroke-width:3px}
+.region{font:10px system-ui;letter-spacing:2px;fill:#6b785e}
+.neighbor{font:11px system-ui;letter-spacing:3px;fill:#969583}
+.river{fill:none;stroke:var(--river);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.small-water{fill:#b4c9c9;stroke:#789ba6;stroke-width:1}
+.route{fill:none;stroke:#866a41;stroke-width:2;stroke-dasharray:5 5}
+.marker{cursor:pointer}
+.marker .hit{fill:transparent;stroke:none}
+.marker .dot{fill:#fbf6e7;stroke:#2d5145;stroke-width:2}
+.marker.trade .dot{fill:#866b43;stroke:#fff9eb}
+.marker.native .dot{fill:#456c64;stroke:#f5f0dd}
+.marker.treaty .dot{fill:#ae6247;stroke:#fff9eb}
+.marker text{font:12px system-ui;fill:#293f36;paint-order:stroke;stroke:#f7f0df;stroke-width:4px;stroke-linejoin:round}
+.marker .lead{stroke:#6f7f6a;stroke-width:1;fill:none}
+.marker:hover .dot,.marker:focus .dot,.marker.pinned .dot{stroke:#b46242;stroke-width:3}
+.marker:hover text,.marker:focus text,.marker.pinned text{font-weight:750}
+.halo{fill:none;stroke:#ae6247;stroke-width:2;opacity:0}
+.pinned .halo{opacity:1}
+.tooltip{position:absolute;z-index:5;pointer-events:none;background:#253e35;color:#fff8e8;padding:10px 12px;border-radius:7px;width:220px;box-shadow:0 6px 25px #24382c30;font-size:12px}
+.tooltip strong{display:block;margin-bottom:4px;font-family:Georgia,serif;font-size:17px}
+.tooltip small{display:block;margin-top:5px;color:#cdd8c6}
+.legend{position:absolute;bottom:16px;left:16px;background:#fbf8efee;border:1px solid #d2cbbb;border-radius:7px;padding:10px 12px;max-width:245px;font-size:10px;box-shadow:0 3px 12px #2b3a2710}
+.legend summary{font-weight:750;letter-spacing:1px;font-size:9px;cursor:pointer}
+.legend-grid{display:grid;grid-template-columns:14px 1fr;gap:4px 8px;margin-top:7px}
+.swatch{height:10px;width:13px;margin-top:3px;background:#769788}
+.swatch.dakota{background:#bfa871}
+.swatch.treaty{background:repeating-linear-gradient(135deg,#b6684c77 0 2px,#b6684c18 2px 5px)}
+.swatch.river{height:2px;background:var(--river);margin-top:8px}
+.swatch.dot{width:7px;height:7px;border-radius:50%;background:#486654;margin:4px 3px}
+.legend p{margin:6px 0 0;max-width:190px;color:#73756a;line-height:1.4}
+.compass{position:absolute;right:18px;top:63px;text-align:center;font:11px Georgia;color:#64715f;pointer-events:none}
+.compass b{display:block;font-size:29px;line-height:1}
+.aside{border-left:1px solid var(--line);padding:23px 24px 18px;background:#faf7ee;overflow:auto;max-height:700px}
+.aside .year{font:52px/.95 Georgia,serif;color:#ad6248;margin:11px 0 12px}
+.aside h2{font-size:26px;margin:0 0 12px}
+.status{display:inline-block;font-size:10px;background:#e6e9dc;color:#4c624d;padding:4px 8px;border-radius:3px;margin:0 0 15px}
+.aside ul{padding-left:17px;margin:0 0 17px;font-size:13px;line-height:1.6}
+.aside li{padding:0 0 8px 2px}
+.aside h3{font-family:inherit;letter-spacing:1.5px;font-size:9px;font-weight:800;margin:17px 0 9px}
+.industry{display:flex;gap:6px;flex-wrap:wrap}
+.industry span{font-size:10px;border:1px solid #d9d1bf;padding:4px 8px;border-radius:20px}
+.artifact{margin-top:18px;border:1px solid #d9ceb7;border-radius:7px;overflow:hidden;background:#f1e9d7}
+.artifact-art{height:106px;display:grid;place-items:center;background:repeating-linear-gradient(0deg,transparent 0 4px,#73634605 4px 5px)}
+.artifact-art svg{width:92%;height:100%}
+.artifact-copy{padding:10px 12px;background:#f7f0e1;border-top:1px solid #dacfb8}
+.artifact-copy b{font-family:Georgia,serif;font-size:15px;font-weight:400}
+.artifact-copy p{font-size:11px;color:#686b5d;line-height:1.5;margin:4px 0 7px}
+a{color:#466651;text-underline-offset:3px}
+a:hover{color:#ad6248}
+.artifact a{font-size:11px}
+.question{border-left:2px solid #b76b4e;padding-left:11px;margin:17px 0 0;font-size:12px}
+.question strong{display:block;letter-spacing:1px;font-size:9px;margin-bottom:5px}
+.pin-card{background:#e8eddf;border:1px solid #c8d0ba;padding:12px;border-radius:6px;margin:0 0 15px;font-size:13px}
+.pin-card h3{font:20px Georgia;margin:5px 0 7px;letter-spacing:0}
+.pin-card button{float:right;font-size:10px;border:0;background:transparent;text-decoration:underline;padding:2px}
+.pin-card p{margin:0;line-height:1.5}
+.timeline{margin:0 24px;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;background:#faf7ed;padding:17px 23px 20px}
+.timeline-head{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.play{background:#2b493c;color:#fbf6e9;border:0;border-radius:50%;width:38px;height:38px;font-size:15px}
+.timeline-head b{font-family:Georgia,serif;font-size:22px;font-weight:400}
+.timeline-head p{font-size:11px;color:#6b7365;margin:0}
+.timeline-head .hint{margin-left:auto}
+.slider-shell{margin:0 9px}
+input[type=range]{width:100%;accent-color:var(--rust);cursor:ew-resize;margin:8px 0 0;height:22px}
+.ticks{position:relative;height:62px;margin:0 8px}
+.tick{position:absolute;top:0;transform:translateX(-50%);border:0;background:transparent;font-size:10px;padding:4px 0;min-width:28px;text-align:center}
+.tick:before{content:'';position:absolute;top:-2px;left:50%;height:5px;width:1px;background:#a7aa97}
+.tick span{display:block;font-size:9px;color:#74776a}
+.tick.active{font-weight:800;color:#9b513b}
+.tick:nth-child(7){top:20px}
+.lower{display:flex;justify-content:space-between;gap:20px;margin:14px 28px 20px;font-size:10px;color:#737568}
+.lower details{max-width:750px}
+.lower summary{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.lower p{max-width:750px}
+.source-links{display:flex;gap:12px;flex-wrap:wrap}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.hidden{display:none!important}
+@media(min-width:1450px){
+.workspace,.timeline{max-width:1420px;margin-left:auto;margin-right:auto}
+.intro,.lower{max-width:1420px;margin-left:auto;margin-right:auto}
+.workspace{grid-template-columns:minmax(0,1fr) 380px}
+.map-wrap{min-height:560px}
+.aside{max-height:790px}
+}
+@media(max-width:900px){
+.workspace{grid-template-columns:minmax(0,1fr) 300px;margin:0 12px}
+.aside{padding:20px 17px}
+.intro{padding:20px}
+.timeline{margin:0 12px}
+.map-toolbar span{display:none}
+.map-wrap{min-height:530px}
+.layer-bar{right:10px}
+.tick span{display:none}
+.ticks{height:42px}
+}
+@media(max-width:680px){
+header{padding:12px 16px}
+.course{display:none}
+.intro{padding:18px 16px}
+.intro .pill{display:none}
+h1{font-size:28px}
+.workspace{grid-template-columns:1fr}
+.map-wrap{min-height:510px}
+.aside{max-height:none;border-left:0;border-top:1px solid var(--line);padding:20px}
+.aside .year{font-size:39px}
+.aside h2{font-size:25px}
+.timeline{padding:15px 12px}
+.hint{display:none}
+.tick{font-size:9px}
+.tick:nth-child(3),.tick:nth-child(7){top:18px}
+.lower{margin:12px 18px}
+.lower>span{display:none}
+.map-footer{font-size:9px}
+.legend{bottom:12px;padding:8px}
+.map-toolbar{padding:10px 12px}
+.brand{letter-spacing:1.4px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b aria-hidden="true">✧</b> NORTH STAR HISTORIES</div>
+  <div class="course">MINNESOTA SOCIAL STUDIES · GRADES 6–8</div>
+</header>
+
+<section class="intro">
+  <div>
+    <div class="eyebrow">An interactive historical atlas · 1800–1870</div>
+    <h1>Minnesota: rivers, land & belonging</h1>
+    <p>Follow the waterways. Explore how trade, treaties, and migration reshaped a homeland.</p>
+  </div>
+  <span class="pill">70 years of change</span>
+</section>
+
+<main class="workspace">
+<section class="map-area" aria-label="Interactive Minnesota history map">
+  <div class="map-toolbar">
+    <div>
+      <strong id="map-status">MINNESOTA TERRITORY</strong>
+      <span id="border-note">Territory extends west of today’s state.</span>
+    </div>
+    <div class="tools">
+      <button class="icon" id="zoom-out" aria-label="Zoom out">−</button>
+      <button class="icon" id="zoom-in" aria-label="Zoom in">+</button>
+      <button class="icon" id="reset" aria-label="Reset map zoom">↺</button>
+    </div>
+  </div>
+
+  <div class="map-wrap" id="map-wrap">
+    <div class="layer-bar" aria-label="Map layers">
+      <label><input type="checkbox" data-layer="homelands" checked>Homelands</label>
+      <label><input type="checkbox" data-layer="treaties" checked>Treaties</label>
+      <label><input type="checkbox" data-layer="routes" checked>Trade routes</label>
+      <label><input type="checkbox" data-layer="settlements" checked>Towns & posts</label>
+    </div>
+
+    <svg id="map" viewBox="0 0 760 660" role="group" aria-label="Minnesota map. Use Tab to explore places; press Enter to pin their stories.">
+      <defs>
+        <path id="outline" d="M174 87 L292 87 L292 45 L313 42 L318 82 L332 91 L353 94 L362 107 L386 104 L398 114 L416 109 L431 119 L443 114 L461 129 L480 124 L489 137 L510 129 L526 143 L548 141 L561 150 L581 144 L595 150 L613 143 L631 152 L650 147 L671 161 L693 164 L713 153 L724 161 L701 183 L678 195 L655 209 L637 231 L609 250 L582 268 L554 287 L533 302 L511 315 L503 335 L485 350 L489 367 L478 385 L482 404 L470 421 L474 444 L463 459 L470 486 L492 503 L510 512 L514 527 L540 539 L550 555 L574 570 L583 590 L586 624 L212 624 L212 450 L195 434 L183 414 L197 397 L204 377 L201 350 L193 325 L196 300 L190 277 L188 252 L183 225 L185 201 L177 177 L177 150 L170 122 Z"/>
+        <clipPath id="land-clip"><use href="#outline"/></clipPath>
+        <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+          <rect width="7" height="7" fill="#b76d4d" fill-opacity=".08"/>
+          <path d="M0 0V7" stroke="#a3583e" stroke-width="2" stroke-opacity=".5"/>
+        </pattern>
+        <pattern id="forest" width="27" height="27" patternUnits="userSpaceOnUse">
+          <path d="M10 9l-4 7h8z M10 12v7" fill="none" stroke="#55715a" stroke-width=".8" opacity=".2"/>
+        </pattern>
+        <pattern id="grass" width="23" height="23" patternUnits="userSpaceOnUse">
+          <path d="M6 15l-2-4m2 4v-6m0 6 3-4" stroke="#8a815a" opacity=".23" fill="none"/>
+        </pattern>
+        <filter id="shadow">
+          <feDropShadow dx="1" dy="3" stdDeviation="4" flood-color="#66614c" flood-opacity=".16"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10" fill="#a6563c"/>
+        </marker>
+      </defs>
+
+      <g id="geography">
+        <path d="M512 315Q596 259 724 160L760 186V325L557 354Z" fill="#d2dfdc" stroke="#bdcfcd"/>
+        <text x="616" y="280" class="river-label" transform="rotate(-28 616 280)">Lake Superior</text>
+        <text x="423" y="62" class="neighbor">CANADA</text>
+        <text x="541" y="454" class="neighbor">WISCONSIN</text>
+        <text x="356" y="650" class="neighbor">IOWA</text>
+        <text x="62" y="298" class="neighbor">NORTHERN</text>
+        <text x="59" y="316" class="neighbor">PLAINS</text>
+
+        <path id="territory" d="M174 87L55 87L39 160L60 246L42 342L71 428L84 535L130 624L212 624" stroke="#657b60" stroke-width="2" stroke-dasharray="7 5" fill="#889d7016"/>
+        <text id="territory-label" x="73" y="373" font-size="10" fill="#69795e">
+          <tspan x="73">Territory continues</tspan>
+          <tspan x="73" dy="15">west to the Missouri</tspan>
+          <tspan x="73" dy="15">and White Earth rivers</tspan>
+        </text>
+        <use href="#outline" fill="#e4dfc3" filter="url(#shadow)"/>
+
+        <g clip-path="url(#land-clip)">
+          <path d="M150 70H750V320Q570 356 486 364Q403 366 343 291Q289 215 150 230Z" fill="#c6d1b6"/>
+          <path d="M150 230Q289 215 343 291Q403 366 486 364L495 520L412 583L350 620L279 518L269 398Z" fill="#d3d4b5"/>
+          <path d="M150 70H750V335Q550 363 486 364Q403 366 343 291Q289 215 150 230Z" fill="url(#forest)"/>
+          <path d="M150 230L269 398L279 518L350 630H150Z" fill="url(#grass)"/>
+
+          <g id="homelands">
+            <path d="M150 70H750V300Q555 355 478 344Q410 318 345 326Q280 308 150 350Z" fill="#608c7a" opacity=".22"/>
+            <path d="M150 350Q280 308 345 326Q410 318 478 344L530 343L650 670H150Z" fill="#bc9b5d" opacity=".24"/>
+            <path d="M155 349Q280 308 345 326Q410 318 478 344" fill="none" stroke="#6d7d5e" stroke-width="18" opacity=".1"/>
+            <text x="372" y="199" font-family="Georgia" font-size="27" letter-spacing="4" fill="#315e50" opacity=".8">OJIBWE</text>
+            <text x="277" y="554" font-family="Georgia" font-size="27" letter-spacing="4" fill="#806940" opacity=".8">DAKOTA</text>
+          </g>
+
+          <g id="treaties">
+            <path id="t1851" d="M184 340L277 342Q370 321 414 371L414 434L423 475L470 486L595 624H212V450L183 414Z" fill="url(#hatch)" stroke="#a86448" stroke-dasharray="5 4" stroke-width="1.5"/>
+            <path id="t1837" d="M412 304L518 296L503 335L485 350L489 367L478 385L482 404L470 421L474 444L463 459L470 486L492 503L510 512L514 527L540 539L550 555L574 570L586 624L423 624L466 528L470 486L423 475L414 434L412 388L393 352Z" fill="url(#hatch)" stroke="#a86448" stroke-dasharray="5 4" stroke-width="1.5"/>
+            <circle id="t1805" cx="425" cy="465" r="20" fill="#b56b4d33" stroke="#a86448" stroke-dasharray="3 3"/>
+          </g>
+
+          <g id="density" fill="#6f573b" opacity=".35"></g>
+
+          <path d="M280 166Q285 150 302 157L307 173L295 185L281 177Z M319 167Q336 157 346 171L341 184L323 186Z M338 229Q355 218 365 233L359 246L342 244Z M379 283Q393 273 400 287L397 312L381 309Z" class="small-water"/>
+          <path class="river" id="mississippi" d="M309 242Q293 222 312 221Q326 218 326 237Q330 254 353 252L378 250Q404 250 409 273Q405 293 410 316L399 340Q394 355 411 375Q415 397 414 416L418 436L423 453L425 475Q448 469 452 462Q467 464 470 486L492 503L510 512L514 527L540 539L550 555L574 570L583 590"/>
+          <path class="river" id="minnesota" d="M208 419Q219 437 239 448L258 466L279 478L300 504Q312 517 323 535Q332 551 346 546L377 518L398 504Q414 486 425 475"/>
+          <path class="river" id="stcroix" d="M512 329Q492 333 498 353L490 371L495 389L482 410L482 440L473 462L470 486"/>
+
+          <g id="routes">
+            <path id="fur-routes" class="route" d="M688 179Q592 163 518 226Q432 277 353 252 M409 273Q421 348 414 416L425 475 M353 252Q300 300 243 355 M425 475Q365 461 300 504"/>
+            <path id="timber-routes" class="route" d="M502 344L492 377L486 411L482 440L470 486L510 512"/>
+            <path id="farm-routes" class="route" d="M242 582Q300 540 346 546L398 504L425 475L452 462"/>
+          </g>
+
+          <g id="war-layer">
+            <path d="M346 546Q370 491 425 475" fill="none" stroke="#a6563c" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+            <path id="exile" d="M425 475Q320 590 205 580L140 580" fill="none" stroke="#a6563c" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+          </g>
+        </g>
+
+        <path id="exile-outside" d="M211 580L135 580" fill="none" stroke="#a6563c" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+        <text id="exile-label" x="107" y="558" font-size="11" fill="#964e35">
+          <tspan x="107">1863: forced exile</tspan>
+          <tspan x="107" dy="14">toward Dakota Territory</tspan>
+        </text>
+        <use id="state-border" href="#outline" fill="none" stroke="#566348" stroke-width="1.7" stroke-dasharray="4 4"/>
+        <text x="450" y="239" class="region" transform="rotate(-15 450 239)">CONIFER FOREST</text>
+        <text x="238" y="388" class="region" transform="rotate(33 238 388)">PRAIRIE</text>
+        <text x="358" y="382" class="region" transform="rotate(60 358 382)">BIG WOODS</text>
+        <text class="river-label" x="368" y="325" transform="rotate(72 368 325)">Mississippi R.</text>
+        <text class="river-label" x="254" y="489" transform="rotate(34 254 489)">Minnesota R.</text>
+        <text class="river-label" x="519" y="377" transform="rotate(-67 519 377)">St. Croix R.</text>
+        <g id="settlements"></g>
+      </g>
+    </svg>
+
+    <div class="compass" aria-hidden="true">N<b>↑</b></div>
+    <div id="tooltip" class="tooltip hidden" role="tooltip"></div>
+
+    <details class="legend" open>
+      <summary>READ THE MAP</summary>
+      <div class="legend-grid">
+        <i class="swatch"></i><span>Ojibwe homelands · broad extent</span>
+        <i class="swatch dakota"></i><span>Dakota homelands · broad extent</span>
+        <i class="swatch treaty"></i><span>Selected treaty focus areas</span>
+        <i class="swatch river"></i><span>Rivers · indigo lines</span>
+        <i class="swatch dot"></i><span>Places · select for a story</span>
+      </div>
+      <p id="route-key">Dashed brown: trade connections.</p>
+      <p id="war-key" class="hidden">Rust arrows: forced movement, schematic.</p>
+    </details>
+  </div>
+
+  <div class="map-footer">
+    <span>Illustrative geography · not legal boundaries</span>
+    <span>Hover to explore · click to pin</span>
+  </div>
+</section>
+
+<aside class="aside" aria-label="Year context and place stories">
+  <div class="eyebrow" id="era-label">Chapter 04 · Territorial years</div>
+  <div class="year" id="year-display">1849</div>
+  <h2 id="event-title"></h2>
+  <div class="status" id="event-status"></div>
+
+  <section id="pin-card" class="pin-card hidden" aria-label="Pinned place">
+    <button id="unpin">Clear pin ×</button>
+    <div class="eyebrow">Place story</div>
+    <h3 id="pin-title"></h3>
+    <p id="pin-text"></p>
+  </section>
+
+  <ul id="context"></ul>
+  <h3>LIVELIHOODS & INDUSTRIES</h3>
+  <div class="industry" id="industries"></div>
+
+  <section class="artifact">
+    <div class="artifact-art" id="artifact-art" aria-hidden="true"></div>
+    <div class="artifact-copy">
+      <div class="eyebrow" style="font-size:8px;margin-bottom:4px">A window into the past</div>
+      <b id="artifact-title"></b>
+      <p id="artifact-caption"></p>
+      <a id="artifact-source" target="_blank" rel="noopener">Explore the historical source ↗</a>
+    </div>
+  </section>
+
+  <div class="question">
+    <strong>THINK LIKE A HISTORIAN</strong>
+    <span id="question"></span>
+  </div>
+</aside>
+</main>
+
+<section class="timeline" aria-label="Historical timeline">
+  <div class="timeline-head">
+    <button class="play" id="play" aria-label="Play timeline">▶</button>
+    <button class="icon" id="previous" aria-label="Previous milestone">‹</button>
+    <button class="icon" id="next" aria-label="Next milestone">›</button>
+    <div><b id="timeline-year">1849</b><p>Drag through time</p></div>
+    <p class="hint">Explore a year, then select a place on the map.</p>
+  </div>
+  <div class="slider-shell">
+    <label for="year" class="eyebrow">Selected year</label>
+    <input id="year" type="range" min="1800" max="1870" value="1849" step="1" aria-describedby="timeline-help">
+    <div id="ticks" class="ticks"></div>
+  </div>
+  <p id="timeline-help" style="font-size:10px;color:#6d7565;margin:5px 8px 0">Arrow keys change one year. Milestone labels jump to key events. Town dots show illustrative growth, not census counts.</p>
+  <div id="announcement" class="sr-only" aria-live="polite"></div>
+</section>
+
+<footer class="lower">
+  <details>
+    <summary>Sources, scope & classroom notes</summary>
+    <p>This atlas follows settlement by newcomers, alongside the much longer history of Native peoples. Dakota and Ojibwe homelands overlap, extend beyond Minnesota, and do not disappear after treaties. Other Native nations and Métis communities also shaped this region. The year slider shows broad patterns; events within a year are summarized together.</p>
+    <p>The modern state outline is a location guide before 1858. The 1849–1857 western extension is a schematic cue, not a surveyed territorial boundary. Natural regions, treaty focus areas, routes, arrows, and town density are simplified teaching graphics. Selected 1805, 1837, and 1851 agreements are shown; this is not a complete treaty or reservation map. Treaty signing, ratification, surveys, and settlement happened at different times. There was no single “1862 treaty”: war, imprisonment, and 1863 federal removal laws are shown separately. Artifact panels are modern illustrations, not archival reproductions.</p>
+    <div class="source-links">
+      <a href="https://www.mnhs.org/usdakotawar/stories/history/treaties/minnesota-treaties" target="_blank" rel="noopener">MNHS: treaties</a>
+      <a href="https://www.mnhs.org/fortsnelling/learn/us-dakota-war" target="_blank" rel="noopener">MNHS: war & exile</a>
+      <a href="https://sos.mn.gov/about-minnesota/minnesota-government/organic-act-of-1849/" target="_blank" rel="noopener">1849 Organic Act</a>
+      <a href="https://www.sos.mn.gov/about-minnesota/minnesota-government/admission-of-minnesota-into-the-union-1858/" target="_blank" rel="noopener">1858 statehood</a>
+      <a href="https://www.nps.gov/miss/learn/historyculture/river-of-history-chapter-8.htm" target="_blank" rel="noopener">NPS: river towns</a>
+      <a href="https://www.mnhs.org/fortsnelling/learn/fur-trade" target="_blank" rel="noopener">MNHS: fur trade</a>
+      <a href="https://www.mnhs.org/mnopedia/search/index/place/fort-snelling-expansionist-era-1819-1858" target="_blank" rel="noopener">MNopedia: Fort Snelling</a>
+    </div>
+  </details>
+  <span>RIVERS CONNECT. HISTORY CONTINUES.</span>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const links = {
+  fur: 'https://www.mnhs.org/fortsnelling/learn/fur-trade',
+  treaty: 'https://www.mnhs.org/usdakotawar/stories/history/treaties/minnesota-treaties',
+  fort: 'https://www.mnhs.org/mnopedia/search/index/place/fort-snelling-expansionist-era-1819-1858',
+  territory: 'https://sos.mn.gov/about-minnesota/minnesota-government/organic-act-of-1849/',
+  state: 'https://www.sos.mn.gov/about-minnesota/minnesota-government/admission-of-minnesota-into-the-union-1858/',
+  war: 'https://www.mnhs.org/fortsnelling/learn/us-dakota-war',
+  town: 'https://www.nps.gov/miss/learn/historyculture/river-of-history-chapter-8.htm'
+};
+
+const eras = [
+  {
+    y:1800, chapter:'01 · A connected homeland',
+    title:'Homelands connected by rivers',
+    status:'Long before Minnesota statehood',
+    points:[
+      'Dakota and Ojibwe communities already live, farm, gather, and trade here. This is a homeland with a long history.',
+      'Native expertise and family ties connect British and other European traders to canoe routes. Métis families help shape the region.',
+      'Furs move along waterways; tools and cloth move in return. Rivers connect communities across future borders.'
+    ],
+    industry:['Fur trade','Native agriculture','Fishing & gathering'],
+    art:'canoe', artifact:'The canoe as a connection',
+    caption:'Modern illustration of a trade canoe. Native knowledge made this trade network possible.',
+    source:'fur',
+    question:'How would a river shape where people live and trade?'
+  },
+  {
+    y:1805, chapter:'02 · A military foothold',
+    title:'Pike’s disputed agreement',
+    status:'1805 · Often called “Pike’s Treaty”',
+    points:[
+      'Zebulon Pike seeks land for U.S. military posts near the Mississippi and Minnesota rivers.',
+      'Only two of seven Dakota leaders present sign. Pike lacks authority to negotiate a treaty, and the agreement’s legal standing is disputed.',
+      'The United States later uses this agreement to claim a fort site at Bdote, a place sacred to Dakota people.'
+    ],
+    industry:['Fur trade','River transport'],
+    art:'document', artifact:'A document with lasting consequences',
+    caption:'Modern document illustration. Consider whose signatures appear and whether they represent everyone affected.',
+    source:'fort',
+    question:'Is a signed agreement fair if its authority and representation are disputed?'
+  },
+  {
+    y:1819, chapter:'02 · A military foothold',
+    title:'Soldiers arrive at Bdote',
+    status:'1819 · Arrival; 1820–1825 · Construction',
+    points:[
+      'U.S. soldiers arrive in 1819. They begin building Fort St. Anthony in 1820; it becomes Fort Snelling in 1825.',
+      'The fort strengthens U.S. influence over a busy fur trade region. Traders and Native communities meet near the river junction.',
+      'Bdote already has deep Dakota meaning. The fort adds a military post to an existing homeland.'
+    ],
+    industry:['Fur trade','Military supplies'],
+    art:'fort', artifact:'A fort above the rivers',
+    caption:'Modern schematic of a river fort, not an archival image. Why might an army choose a river junction?',
+    source:'fort',
+    question:'Who gains power when a military fort controls a travel route?'
+  },
+  {
+    y:1825, chapter:'02 · A military foothold',
+    title:'Fort Snelling is completed',
+    status:'1825 · A fur trade network hub',
+    points:[
+      'Completed in 1825, the fort stands near trade at Mendota. Canoes link this river junction with distant communities.',
+      'Dakota and Ojibwe hunters, women, interpreters, and traders sustain the fur economy.',
+      'Trade brings goods and connections, but also competition over animals and growing pressure from the United States.'
+    ],
+    industry:['Fur trade','Military supplies'],
+    art:'fort', artifact:'Trade at a river junction',
+    caption:'Modern illustration. Read how the fort, the river landing, and the trading post served different roles.',
+    source:'fort',
+    question:'Why is the fort’s story also a story about Native traders and families?'
+  },
+  {
+    y:1837, chapter:'03 · Timber & treaty-making',
+    title:'Treaties reshape the river valleys',
+    status:'1837 · Dakota and Ojibwe land cessions',
+    points:[
+      'Separate Ojibwe and Dakota treaties cede land to the United States. A cession is an agreement to give up a claim to land.',
+      'The Ojibwe treaty covers land around the St. Croix region; the Dakota treaty cedes land east of the Mississippi.',
+      'Logging expands in the St. Croix Valley. Newcomers arrive as the fur trade declines, and Native communities face land loss.'
+    ],
+    industry:['Timber','River transport','Fur trade declines'],
+    art:'timber', artifact:'Rivers become timber routes',
+    caption:'Modern illustration of a log drive. The treaty shading marks broad focus areas, not exact cession boundaries.',
+    source:'treaty',
+    question:'How could one treaty create an opportunity for some people and a loss for others?'
+  },
+  {
+    y:1849, chapter:'04 · Territorial years',
+    title:'Minnesota Territory is established',
+    status:'March 3, 1849 · A new U.S. territory',
+    points:[
+      'Congress creates Minnesota Territory. It reaches west beyond today’s Minnesota, into parts of present-day North and South Dakota.',
+      'St. Paul becomes the capital. Stillwater grows with lumber; St. Anthony grows around the falls and its waterpower.',
+      'Territorial government does not end Native nations’ existence or turn all Native land into land available for settlers.'
+    ],
+    industry:['Timber','Water-powered mills','River transport'],
+    art:'document', artifact:'The Organic Act of 1849',
+    caption:'Modern document illustration. “Organic” here means organizational: the act creates a territorial government.',
+    source:'territory',
+    question:'How is a government boundary different from a Native homeland?'
+  },
+  {
+    y:1851, chapter:'04 · Territorial years',
+    title:'Dakota lands under pressure',
+    status:'1851 · Traverse des Sioux & Mendota',
+    points:[
+      'Under intense pressure, Dakota leaders sign the treaties of Traverse des Sioux and Mendota, ceding vast lands in southern Minnesota.',
+      'The treaties promise money and supplies. Trader claims and U.S. control of payments reduce what reaches Dakota families.',
+      'Land cessions accelerate white settlement and farming. Dakota people are pushed toward a narrow reservation along the Minnesota River.'
+    ],
+    industry:['Agriculture expands','Timber','Milling'],
+    art:'document', artifact:'Two treaties, unequal power',
+    caption:'Modern document illustration. Examine who negotiated the treaties and who controlled the promised payments.',
+    source:'treaty',
+    question:'What evidence would help you decide whether a treaty promise was kept?'
+  },
+  {
+    y:1858, chapter:'05 · The 32nd state',
+    title:'Minnesota becomes a state',
+    status:'May 11, 1858 · Statehood',
+    points:[
+      'Minnesota joins the United States as the 32nd state. Its western boundary leaves part of the former territory outside the new state.',
+      'Newcomers build farms and towns. St. Paul’s river traffic and the mills at St. Anthony and Minneapolis connect rural and urban economies.',
+      'Statehood does not erase Dakota and Ojibwe nations or their treaty rights. Native land loss and pressure continue.'
+    ],
+    industry:['Agriculture','Lumber & flour mills','River commerce'],
+    art:'mill', artifact:'Waterpower changes a landscape',
+    caption:'Modern illustration of a mill. River currents can power saws and grind grain, linking farms and towns.',
+    source:'state',
+    question:'Whose lives changed with statehood, and whose rights continued?'
+  },
+  {
+    y:1862, chapter:'06 · War & displacement',
+    title:'The U.S.–Dakota War',
+    status:'1862 · War, imprisonment & loss',
+    points:[
+      'Broken treaty promises, hunger, and land loss help lead to war. Some Dakota men fight U.S. forces and attack settlements; many Dakota do not join the fighting.',
+      'Dakota people, settlers, and soldiers are killed. After the war, 38 Dakota men are hanged at Mankato in December.',
+      'U.S. forces imprison Dakota families near Fort Snelling. In 1863, federal laws cancel Dakota treaties and force most Dakota from Minnesota.'
+    ],
+    industry:['Farming & milling','War disrupts communities'],
+    art:'river', artifact:'Bdote: homeland and imprisonment',
+    caption:'Modern river-junction illustration. The same place can hold sacred meaning and memories of forced confinement.',
+    source:'war',
+    question:'Why must a history of settlement include the people who were forced to leave?'
+  },
+  {
+    y:1863, chapter:'06 · War & displacement',
+    title:'Forced exile and enduring ties',
+    status:'1863 onward · Removal & survival',
+    points:[
+      'Federal laws cancel Dakota treaties and force most Dakota out of Minnesota. Ho-Chunk people are also expelled in 1863.',
+      'Newcomer farms and towns continue to grow. This growth occurs alongside the dispossession of Native people.',
+      'Dakota people maintain ties to their homeland; some remain or later return. Dakota and Ojibwe communities continue today.'
+    ],
+    industry:['Agriculture','Flour milling','Timber'],
+    art:'river', artifact:'A homeland beyond a boundary',
+    caption:'Modern illustration. The arrows simplify forced movement; they do not show every journey or destination.',
+    source:'war',
+    question:'How can people remain connected to a homeland after forced removal?'
+  },
+  {
+    y:1870, chapter:'07 · An unfinished story',
+    title:'Growing towns, enduring nations',
+    status:'1870 · Looking back, looking forward',
+    points:[
+      'Newcomer settlement and farming have expanded. Mills and river towns have grown from the earlier trade network.',
+      'Treaties, war, and removal have transformed control of land. Minnesota’s story includes both opportunity and profound loss.',
+      'Native people have not vanished. Dakota and Ojibwe nations, cultures, and connections to this land endure.'
+    ],
+    industry:['Agriculture','Flour milling','Timber'],
+    art:'mill', artifact:'A river landscape transformed',
+    caption:'Modern illustration. Compare this economy with the fur trade network at the start of the timeline.',
+    source:'town',
+    question:'What changes between 1800 and 1870—and what continues?'
+  }
+];
+
+const places = [
+  {
+    id:'bdote', name:'Bdote', x:425,y:475,dx:-90,dy:-3,
+    start:1800,type:'native',
+    summary:'The meeting of the Minnesota and Mississippi rivers is a sacred place in Dakota history.',
+    story:y=>y>=1862
+      ? 'Bdote is a Dakota place of origin and gathering. In 1862–1863, U.S. forces confined Dakota families below the fort before forced exile. These layers of history remain connected.'
+      : 'Bdote is the Dakota name for this river junction. It is a sacred place and a gathering place with a history much older than the U.S. fort.'
+  },
+  {
+    id:'grand',name:'Grand Portage',x:684,y:181,dx:-48,dy:-19,
+    start:1800,type:'native',
+    summary:'An Ojibwe community and a major gateway in the fur trade.',
+    story:y=>y<1803
+      ? 'Grand Portage is an Ojibwe homeland and a major fur trade meeting place. A portage is a trail used to carry canoes and goods between waterways.'
+      : 'The North West Company moved its main depot to Fort William in 1803. The Ojibwe community at Grand Portage continued. A trading company’s move did not end a homeland.'
+  },
+  {
+    id:'snake',name:'Snake River post',x:465,y:379,dx:33,dy:-9,
+    start:1804,end:1805,type:'trade',
+    summary:'A North West Company post operated here in 1804–1805.',
+    story:()=> 'The Snake River post operated in Ojibwe homeland in 1804–1805. Native family ties, food, and knowledge supported traders. A trading post depended on the people around it.'
+  },
+  {
+    id:'fort',name:'Fort Snelling',x:418,y:464,dx:-88,dy:37,
+    start:1819,type:'fort',
+    summary:'Soldiers arrived in 1819; the fort was built in 1820–1825.',
+    story:y=>y<1820
+      ? 'U.S. troops arrived in 1819 and set up camp. Construction of the stone fort began in 1820. The fort was not already complete when the soldiers arrived.'
+      : y<1825
+      ? 'Soldiers are building Fort St. Anthony above Bdote. Construction lasts from 1820 to 1825, when it receives the name Fort Snelling.'
+      : y>=1862
+      ? 'The fort served the U.S. military. Below it, Dakota families were imprisoned in 1862–1863 before forced exile. A military landmark can tell very different stories for different people.'
+      : 'The completed fort strengthens U.S. military power near the fur trade. Enslaved people also lived and worked here; Dred and Harriet Scott’s time here later became part of their fight for freedom.'
+  },
+  {
+    id:'mendota',name:'Mendota',x:435,y:482,dx:43,dy:26,
+    start:1820,type:'trade',
+    summary:'A fur trade center across the river from the fort.',
+    story:y=>y>=1851
+      ? 'Mendota was a fur trade center and the site of one of the 1851 Dakota treaties. Compare its location with Traverse des Sioux, where the other major treaty was signed.'
+      : 'Traders, Dakota and Ojibwe people, interpreters, and families met at this river junction. The post and fort had different roles in the same regional network.'
+  },
+  {
+    id:'paul',name:'St. Paul',x:452,y:461,dx:47,dy:11,
+    start:1841,type:'town',
+    summary:'A river town that became territorial capital in 1849.',
+    story:y=>y<1849
+      ? 'The settlement takes the name St. Paul from a chapel dedicated in 1841. River access helps the community grow.'
+      : 'St. Paul is Minnesota’s capital. Its river landing connects people and goods to other Mississippi communities, making transport central to its growth.'
+  },
+  {
+    id:'stillwater',name:'Stillwater',x:482,y:440,dx:23,dy:-5,
+    start:1843,type:'town',
+    summary:'A St. Croix Valley town shaped by lumber.',
+    story:()=> 'Stillwater grows with the St. Croix lumber economy in the 1840s. Loggers float timber downstream to mills. That industry expands after the 1837 land cessions.'
+  },
+  {
+    id:'anthony',name:'St. Anthony',x:418,y:436,dx:-111,dy:-17,
+    start:1848,type:'town',
+    summary:'Waterpower at the falls drives sawmills and later flour milling.',
+    story:()=> 'The falls power mills. St. Anthony grows on the east bank; Minneapolis develops on the west bank. They are still separate communities in 1870 and merge in 1872.'
+  },
+  {
+    id:'minneapolis',name:'Minneapolis',x:407,y:445,dx:-116,dy:8,
+    start:1855,type:'town',
+    summary:'A growing west-bank milling community, later incorporated in 1867.',
+    story:y=>y<1867
+      ? 'Minneapolis is developing on the west bank of the Mississippi, across from St. Anthony. Waterpower helps turn timber and grain into market goods.'
+      : 'Minneapolis is incorporated as a city in 1867. It remains separate from St. Anthony in 1870; their merger comes in 1872, after this timeline.'
+  },
+  {
+    id:'traverse',name:'Traverse des Sioux',x:350,y:534,dx:-123,dy:-7,
+    start:1851,type:'treaty',
+    summary:'Site of one of the two major 1851 Dakota treaties.',
+    story:()=> 'In July 1851, Sisseton and Wahpeton Dakota leaders sign a land cession treaty here under intense pressure. The Mendota treaty follows in August with Mdewakanton and Wahpekute leaders.'
+  },
+  {
+    id:'mankato',name:'Mankato',x:346,y:546,dx:27,dy:33,
+    start:1852,type:'town',
+    summary:'A growing river town and the site of the 1862 execution.',
+    story:y=>y>=1862
+      ? 'On December 26, 1862, the U.S. government hanged 38 Dakota men here after military trials. It was the largest mass execution in U.S. history. Its consequences reach far beyond this timeline.'
+      : 'Mankato develops near a bend of the Minnesota River. Land cessions and river access help newcomers establish farms and businesses in this region.'
+  }
+];
+
+let year=1849, pinned=null, timer=null, zoom=1;
+const ns='http://www.w3.org/2000/svg';
+const milestoneYears=[1800,1805,1819,1825,1837,1849,1851,1858,1862,1870];
+const short=['Homelands','Pike','Fort begins','Fort complete','Treaties','Territory','Treaties','Statehood','War','Growth'];
+const shown=p=>year>=p.start&&(!p.end||year<=p.end);
+
+places.forEach(p=>{
+  const g=document.createElementNS(ns,'g');
+  g.id='place-'+p.id;
+  g.setAttribute('class','marker '+p.type);
+  g.setAttribute('transform',`translate(${p.x} ${p.y})`);
+  g.setAttribute('tabindex','0');
+  g.setAttribute('role','button');
+  g.setAttribute('aria-label',p.name+': '+p.summary+' Press Enter to pin.');
+  g.innerHTML=`
+    <circle class="hit" r="12"/>
+    <path class="lead" d="M0 0L${p.dx*.7} ${p.dy*.7}"/>
+    <circle class="halo" r="11"/>
+    <${p.type==='fort'?'rect x="-5" y="-5" width="10" height="10"':'circle r="5"'} class="dot"/>
+    <text x="${p.dx}" y="${p.dy}" dominant-baseline="middle">${p.name}</text>`;
+  g.addEventListener('pointerenter',()=>tip(p,g));
+  g.addEventListener('focus',()=>tip(p,g));
+  g.addEventListener('pointerleave',hideTip);
+  g.addEventListener('blur',hideTip);
+  g.addEventListener('click',()=>pin(p));
+  g.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();pin(p)}
+    if(e.key==='Escape')unpin();
+  });
+  $('settlements').append(g);
+});
+
+milestoneYears.forEach((y,i)=>{
+  const b=document.createElement('button');
+  b.className='tick';
+  b.style.left=((y-1800)/70*100)+'%';
+  b.innerHTML=y+`<span>${short[i]}</span>`;
+  b.setAttribute('aria-label',y+': '+short[i]);
+  b.addEventListener('click',()=>{stop();setYear(y)});
+  b.dataset.year=y;
+  $('ticks').append(b);
+});
+
+function illustration(type){
+  const start='<svg viewBox="0 0 280 110" fill="none" stroke="#7a6749" stroke-width="1.4" xmlns="http://www.w3.org/2000/svg">';
+  const end='</svg>';
+  const water='<path d="M20 83Q60 75 100 83T180 83T260 83M38 94Q78 86 118 94T198 94" stroke="#829695"/>';
+  if(type==='canoe')return start+water+
+    '<path d="M48 61Q133 82 231 57Q210 91 80 78Z" fill="#c4ac80"/>'+
+    '<path d="M82 48L111 88M194 45L169 88" stroke-width="3"/>'+
+    '<path d="M102 62L102 50L119 49L123 65M143 65L143 51L160 52L165 64"/>'+
+    '<path d="M35 34L65 18L94 34M210 33L234 16L256 33" opacity=".3"/>'+end;
+  if(type==='document')return start+
+    '<path d="M75 16L205 12L213 94L82 99Z" fill="#faf3dc"/>'+
+    '<path d="M91 29L185 26M93 37L170 35M95 49L193 45M96 56L191 52M97 63L182 60M99 70L174 67" opacity=".55"/>'+
+    '<circle cx="186" cy="79" r="10" fill="#aa674b55" stroke="#a6674c"/>'+
+    '<path d="M107 85q5-12 8 0t9-3t11 0"/>'+end;
+  if(type==='fort')return start+water+
+    '<path d="M60 73V42L75 34L90 42V73M89 73V47H197V73M197 73V38L213 32L228 38V73" fill="#d3c6a4"/>'+
+    '<path d="M70 47h10M70 55h10M207 44h10M207 52h10M110 48V73M168 48V73M145 47V20L166 23L145 29"/>'+
+    '<path d="M47 76H244"/>'+end;
+  if(type==='timber')return start+water+
+    '<path d="M35 72L109 68M110 82L195 76M160 66L243 62" stroke-width="6" stroke-linecap="round"/>'+
+    '<path d="M64 52V18M51 44L64 26L78 44M201 46V13M185 37L201 18L217 37" stroke="#647c63"/>'+
+    '<path d="M128 67L135 47L144 58L151 62M135 47L136 39M143 57L167 82"/>'+end;
+  if(type==='mill')return start+water+
+    '<path d="M61 73V40L99 19L136 40V73Z" fill="#d6c39b"/>'+
+    '<path d="M70 44H127M78 49V61H88V49ZM108 49V61H118V49ZM136 45H187V72H136"/>'+
+    '<circle cx="190" cy="67" r="22"/><circle cx="190" cy="67" r="6"/>'+
+    '<path d="M190 45V89M168 67H212M174 51L206 83M174 83L206 51"/>'+end;
+  return start+
+    '<path d="M40 15Q170 28 138 55T185 102" stroke="#849a9b" stroke-width="14"/>'+
+    '<path d="M242 22Q180 66 145 58" stroke="#849a9b" stroke-width="10"/>'+
+    '<path d="M33 47Q70 63 108 50M175 28L202 8M191 85L241 88" opacity=".4"/>'+
+    '<text x="33" y="98" stroke="none" fill="#73664f" font-family="Georgia" font-size="12">Bdote · a meeting of rivers</text>'+end;
+}
+
+function tip(p,g){
+  if(!shown(p))return;
+  const t=$('tooltip');
+  t.innerHTML='<strong>'+p.name+'</strong>'+p.summary+
+    '<small>Click or press Enter to pin this story</small>';
+  t.classList.remove('hidden');
+  const a=g.getBoundingClientRect(), b=$('map-wrap').getBoundingClientRect();
+  t.style.left=Math.max(8,Math.min(b.width-228,a.left-b.left+15))+'px';
+  t.style.top=Math.max(54,Math.min(b.height-t.offsetHeight-8,a.top-b.top-80))+'px';
+}
+
+function hideTip(){$('tooltip').classList.add('hidden')}
+
+function pin(p){
+  pinned=p.id;
+  updatePin();
+  hideTip();
+  $('pin-card').scrollIntoView({behavior:'auto',block:'nearest'});
+  $('announcement').textContent=p.name+' story pinned.';
+}
+
+function unpin(){
+  pinned=null;
+  updatePin();
+  $('announcement').textContent='Place story cleared.';
+}
+
+$('unpin').onclick=unpin;
+
+function updatePin(){
+  const p=places.find(p=>p.id===pinned);
+  $('pin-card').classList.toggle('hidden',!p);
+  places.forEach(q=>{
+    const el=$('place-'+q.id);
+    el.classList.toggle('pinned',q.id===pinned);
+    el.setAttribute('aria-pressed',q.id===pinned?'true':'false');
+  });
+  if(p){
+    $('pin-title').textContent=p.name;
+    $('pin-text').textContent=p.story(year);
+  }
+}
+
+/* Stable illustrative density: these dots are not census observations. */
+let seed=27;
+const random=()=>{
+  seed=(seed*1664525+1013904223)>>>0;
+  return seed/4294967296;
+};
+const dots=[];
+for(let i=0;i<125;i++){
+  const dot=document.createElementNS(ns,'circle');
+  const center=i%3===0?[468,459]:[355,550];
+  dot.setAttribute('cx',center[0]+(random()-.5)*180);
+  dot.setAttribute('cy',center[1]+(random()-.5)*112);
+  dot.setAttribute('r',1.3+random()*.7);
+  $('density').append(dot);
+  dots.push({dot,born:1838+random()*32});
+}
+
+function setYear(value){
+  year=Math.max(1800,Math.min(1870,Number(value)));
+  $('year').value=year;
+  const era=eras.filter(e=>e.y<=year).at(-1);
+
+  $('year-display').textContent=year;
+  $('timeline-year').textContent=year;
+  $('era-label').textContent='Chapter '+era.chapter;
+  $('event-title').textContent=era.title;
+  $('event-status').textContent=era.status;
+  $('context').innerHTML=era.points.map(p=>'<li>'+p+'</li>').join('');
+  $('industries').innerHTML=era.industry.map(i=>'<span>'+i+'</span>').join('');
+  $('artifact-art').innerHTML=illustration(era.art);
+  $('artifact-title').textContent=era.artifact;
+  $('artifact-caption').textContent=era.caption;
+  $('artifact-source').href=links[era.source];
+  $('question').textContent=era.question;
+
+  const territory=year>=1849&&year<1858;
+  $('territory').style.display=territory?'':'none';
+  $('territory-label').style.display=territory?'':'none';
+  $('state-border').setAttribute('stroke-dasharray',year>=1858?'':'4 4');
+  $('state-border').setAttribute('stroke-width',year>=1858?'2.6':'1.7');
+  $('map-status').textContent=year>=1858
+    ? 'STATE OF MINNESOTA'
+    : territory?'MINNESOTA TERRITORY':'BEFORE MINNESOTA TERRITORY';
+  $('border-note').textContent=year>=1858
+    ? 'State boundary from 1858.'
+    : territory
+    ? 'Territory extended west; western edge shown schematically.'
+    : 'Dashed outline shows today’s state for reference.';
+
+  $('t1805').style.display=year>=1805?'':'none';
+  $('t1837').style.display=year>=1837?'':'none';
+  $('t1851').style.display=year>=1851?'':'none';
+
+  $('fur-routes').style.opacity=year<1830?'.8':year<1840?'.45':'.16';
+  $('timber-routes').style.display=year>=1837?'':'none';
+  $('farm-routes').style.display=year>=1851?'':'none';
+  $('route-key').textContent=year<1837
+    ? 'Dashed brown: fur trade connections.'
+    : year<1851
+    ? 'Dashed brown: trade & timber connections.'
+    : 'Dashed brown: trade, timber & farm connections.';
+
+  $('war-layer').style.display=year>=1862?'':'none';
+  $('exile').style.display=year>=1863?'':'none';
+  $('exile-outside').style.display=year>=1863?'':'none';
+  $('exile-label').style.display=year>=1863?'':'none';
+  $('war-key').classList.toggle('hidden',year<1862);
+
+  places.forEach(p=>{
+    const el=$('place-'+p.id);
+    el.style.display=shown(p)?'':'none';
+    if(p.type==='town'){
+      el.querySelector('.dot').setAttribute('r',Math.min(8,4+(year-p.start)*.08));
+    }
+  });
+
+  dots.forEach(d=>{
+    d.dot.style.opacity=Math.max(0,Math.min(1,(year-d.born)/3));
+  });
+
+  if(pinned&&!shown(places.find(p=>p.id===pinned)))pinned=null;
+  updatePin();
+  hideTip();
+
+  $('year').setAttribute('aria-valuetext',year+': '+era.title);
+  document.querySelectorAll('.tick').forEach(b=>{
+    b.classList.toggle('active',Number(b.dataset.year)===year);
+  });
+}
+
+$('year').addEventListener('input',e=>{
+  stop();
+  setYear(e.target.value);
+});
+
+function stop(){
+  if(timer)clearInterval(timer);
+  timer=null;
+  $('play').textContent='▶';
+  $('play').setAttribute('aria-label','Play timeline');
+}
+
+$('play').onclick=()=>{
+  if(timer){stop();return}
+  if(year===1870)setYear(1800);
+  $('play').textContent='Ⅱ';
+  $('play').setAttribute('aria-label','Pause timeline');
+  timer=setInterval(()=>{
+    setYear(year+1);
+    if(year>=1870)stop();
+  },900);
+};
+
+$('previous').onclick=()=>{
+  stop();
+  setYear([...milestoneYears].reverse().find(y=>y<year)??1800);
+};
+$('next').onclick=()=>{
+  stop();
+  setYear(milestoneYears.find(y=>y>year)??1870);
+};
+
+document.querySelectorAll('[data-layer]').forEach(input=>{
+  input.addEventListener('change',()=>{
+    const id=input.dataset.layer;
+    $(id).style.visibility=input.checked?'visible':'hidden';
+    if(id==='settlements'){
+      $('density').style.visibility=input.checked?'visible':'hidden';
+      if(!input.checked)unpin();
+    }
+    hideTip();
+  });
+});
+
+function zoomTo(z){
+  zoom=Math.max(1,Math.min(2.4,z));
+  const w=760/zoom, h=660/zoom;
+  const cx=zoom>1?420:380, cy=zoom>1?440:330;
+  $('map').setAttribute('viewBox',
+    `${Math.max(0,Math.min(760-w,cx-w/2))} ${Math.max(0,Math.min(660-h,cy-h/2))} ${w} ${h}`);
+  $('zoom-out').disabled=zoom===1;
+  $('zoom-in').disabled=zoom===2.4;
+  hideTip();
+}
+
+$('zoom-in').onclick=()=>zoomTo(zoom+.35);
+$('zoom-out').onclick=()=>zoomTo(zoom-.35);
+$('reset').onclick=()=>zoomTo(1);
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){hideTip();unpin()}
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)stop();
+});
+
+setYear(1849);
+zoomTo(1);
+</script>
+</body>
+</html>
