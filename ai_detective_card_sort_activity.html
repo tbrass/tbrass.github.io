@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Detective: Technology Card Sort</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Quicksand -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        body: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        aiBlue: {
+                            light: '#e0f2fe',
+                            medium: '#38bdf8',
+                            dark: '#0369a1'
+                        },
+                        notRed: {
+                            light: '#fee2e2',
+                            medium: '#f87171',
+                            dark: '#b91c1c'
+                        },
+                        maybeOrange: {
+                            light: '#fef3c7',
+                            medium: '#fbbf24',
+                            dark: '#b45309'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0f4f8;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Custom smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        /* Shake animation for incorrect items */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            75% { transform: translateX(5px) rotate(1deg); }
+        }
+        .shake-element {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden text-slate-800">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b-4 border-slate-200 py-4 px-6 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-3 rounded-2xl shadow-md transform rotate-[-3deg]">
+                    <i class="fa-solid fa-magnifying-glass-chart text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-wide">AI Detective!</h1>
+                    <p class="text-xs md:text-sm text-slate-500 font-bold">Grade 5 Classroom Tech Sorting Challenge</p>
+                </div>
+            </div>
+
+            <!-- Score / Progress Board -->
+            <div class="flex items-center gap-4 bg-indigo-50 border-2 border-indigo-200 px-4 py-2 rounded-2xl">
+                <div class="text-center border-r-2 border-indigo-200 pr-4">
+                    <span class="block text-xs uppercase tracking-wider font-bold text-indigo-500">Sorted</span>
+                    <span id="sorted-counter" class="text-xl font-black text-indigo-700">0 / 15</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-xs uppercase tracking-wider font-bold text-slate-500">Status</span>
+                    <span id="game-status" class="text-sm font-black text-indigo-600 block px-2 py-0.5 rounded-full bg-indigo-100">
+                        Investigating 🔍
+                    </span>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-2">
+                <button onclick="checkAnswers()" id="check-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-md border-b-4 border-green-700 transition active:translate-y-1 active:border-b-0 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> Check Answers
+                </button>
+                <button onclick="resetGame()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-4 rounded-xl shadow-md border-b-4 border-slate-400 transition active:translate-y-1 active:border-b-0 flex items-center gap-1" title="Reset Game">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+                <button onclick="toggleHelpModal(true)" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-1" title="Instructions">
+                    <i class="fa-solid fa-circle-question"></i> Guide
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE PLAYGROUND -->
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col gap-6">
+        
+        <!-- Interactive Drop Buckets (Targets) -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Category: AI -->
+            <div class="drop-zone flex flex-col bg-sky-50 border-4 border-dashed border-sky-300 rounded-3xl p-4 min-h-[220px] transition-all duration-300 relative group"
+                 id="bucket-AI"
+                 ondragover="allowDrop(event)"
+                 ondragleave="dragLeave(event)"
+                 ondrop="handleDrop(event, 'AI')"
+                 onclick="bucketClick('AI')">
+                
+                <div class="pointer-events-none flex items-center justify-between mb-3 pb-2 border-b-2 border-sky-100">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-sky-500 text-white w-8 h-8 rounded-xl flex items-center justify-center shadow">
+                            <i class="fa-solid fa-brain"></i>
+                        </span>
+                        <h3 class="text-xl font-bold text-sky-800">Artificial Intelligence</h3>
+                    </div>
+                    <span class="text-xs bg-sky-200 text-sky-800 font-black px-2.5 py-1 rounded-full uppercase tracking-wider">AI</span>
+                </div>
+                
+                <div class="pointer-events-none text-xs text-sky-600 font-semibold mb-4 bg-sky-100/50 p-2 rounded-lg">
+                    🧠 Learns from data, makes smart predictions, and improves!
+                </div>
+
+                <!-- Inner Container for Cards -->
+                <div class="bucket-cards flex flex-wrap gap-3 items-start justify-center flex-grow transition-all" id="list-AI">
+                    <!-- Cards will drop here -->
+                </div>
+
+                <div class="absolute inset-0 bg-sky-500/10 rounded-2xl hidden group-[.dragover]:block pointer-events-none border-4 border-sky-400"></div>
+            </div>
+
+            <!-- Category: Maybe/Some AI -->
+            <div class="drop-zone flex flex-col bg-amber-50 border-4 border-dashed border-amber-300 rounded-3xl p-4 min-h-[220px] transition-all duration-300 relative group"
+                 id="bucket-Maybe"
+                 ondragover="allowDrop(event)"
+                 ondragleave="dragLeave(event)"
+                 ondrop="handleDrop(event, 'Maybe/Some AI')"
+                 onclick="bucketClick('Maybe')">
+                
+                <div class="pointer-events-none flex items-center justify-between mb-3 pb-2 border-b-2 border-amber-100">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-amber-500 text-white w-8 h-8 rounded-xl flex items-center justify-center shadow">
+                            <i class="fa-solid fa-circle-question"></i>
+                        </span>
+                        <h3 class="text-xl font-bold text-amber-800">Maybe / Some AI</h3>
+                    </div>
+                    <span class="text-xs bg-amber-200 text-amber-800 font-black px-2.5 py-1 rounded-full uppercase tracking-wider">Maybe</span>
+                </div>
+
+                <div class="pointer-events-none text-xs text-amber-600 font-semibold mb-4 bg-amber-100/50 p-2 rounded-lg">
+                    ⚖️ Might use some AI models or just simple static rules!
+                </div>
+
+                <!-- Inner Container for Cards -->
+                <div class="bucket-cards flex flex-wrap gap-3 items-start justify-center flex-grow transition-all" id="list-Maybe">
+                    <!-- Cards will drop here -->
+                </div>
+
+                <div class="absolute inset-0 bg-amber-500/10 rounded-2xl hidden group-[.dragover]:block pointer-events-none border-4 border-amber-400"></div>
+            </div>
+
+            <!-- Category: Not AI -->
+            <div class="drop-zone flex flex-col bg-rose-50 border-4 border-dashed border-rose-300 rounded-3xl p-4 min-h-[220px] transition-all duration-300 relative group"
+                 id="bucket-Not"
+                 ondragover="allowDrop(event)"
+                 ondragleave="dragLeave(event)"
+                 ondrop="handleDrop(event, 'Not AI')"
+                 onclick="bucketClick('Not')">
+                
+                <div class="pointer-events-none flex items-center justify-between mb-3 pb-2 border-b-2 border-rose-100">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-rose-500 text-white w-8 h-8 rounded-xl flex items-center justify-center shadow">
+                            <i class="fa-solid fa-gears"></i>
+                        </span>
+                        <h3 class="text-xl font-bold text-rose-800">Not AI</h3>
+                    </div>
+                    <span class="text-xs bg-rose-200 text-rose-800 font-black px-2.5 py-1 rounded-full uppercase tracking-wider">Not AI</span>
+                </div>
+
+                <div class="pointer-events-none text-xs text-rose-600 font-semibold mb-4 bg-rose-100/50 p-2 rounded-lg">
+                    ⚙️ Follows fixed instructions, mathematical recipes, or rules only.
+                </div>
+
+                <!-- Inner Container for Cards -->
+                <div class="bucket-cards flex flex-wrap gap-3 items-start justify-center flex-grow transition-all" id="list-Not">
+                    <!-- Cards will drop here -->
+                </div>
+
+                <div class="absolute inset-0 bg-rose-500/10 rounded-2xl hidden group-[.dragover]:block pointer-events-none border-4 border-rose-400"></div>
+            </div>
+
+        </section>
+
+        <!-- Dynamic Helper Hint for Mobile/Click Sorting -->
+        <div id="selection-helper-bar" class="hidden bg-slate-800 text-white p-3 rounded-xl flex items-center justify-between shadow-lg text-sm transition-all animate-bounce">
+            <span class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-amber-400"></i>
+                <span>You've selected <strong id="selected-card-name" class="underline text-amber-300">"Card Name"</strong>. Tap on any box above to place it!</span>
+            </span>
+            <button onclick="cancelSelection()" class="text-slate-400 hover:text-white font-bold px-2 py-1 bg-slate-700 rounded-md text-xs">Cancel</button>
+        </div>
+
+        <!-- DECK / UNSORTED AREA -->
+        <section class="bg-white border-4 border-slate-200 rounded-3xl p-5 md:p-6 shadow-sm flex-grow flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-rectangle-list"></i>
+                    </span>
+                    <h2 class="text-lg md:text-xl font-bold text-slate-800">Technology Deck</h2>
+                </div>
+                <div class="text-xs text-slate-400 font-bold flex items-center gap-2">
+                    <span>💡 Tip: Drag & drop to sort, or just click a card, then click a box!</span>
+                </div>
+            </div>
+
+            <!-- Card grid -->
+            <div id="deck-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto max-h-[380px] p-2 bg-slate-50/50 rounded-2xl border-2 border-slate-100 min-h-[120px]">
+                <!-- Unsorted Cards will dynamic render here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-4 px-6 text-center text-xs font-semibold border-t-4 border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
+            <p>Made for Educational Classrooms • Artificial Intelligence Lesson Suite</p>
+            <p class="text-indigo-400">Tip: After checking answers, click any green or red card to see why it fits that category!</p>
+        </div>
+    </footer>
+
+    <!-- POP-UP DETAIL MODAL -->
+    <div id="explanation-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 hidden opacity-0 transition-opacity duration-300">
+        <!-- Modal Card -->
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border-4 border-slate-100 transform scale-95 transition-transform duration-300" id="modal-container">
+            
+            <!-- Top Color Bar and Banner -->
+            <div id="modal-header-accent" class="h-4 bg-indigo-500"></div>
+
+            <div class="p-6">
+                <!-- Header with Icon & Name -->
+                <div class="flex items-start gap-4 mb-4">
+                    <div id="modal-icon-bg" class="bg-indigo-100 text-indigo-600 p-4 rounded-2xl text-2xl shadow-inner">
+                        <i id="modal-icon" class="fa-solid fa-robot animate-pulse"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-2">
+                            <span id="modal-number" class="text-xs bg-slate-200 text-slate-600 font-black px-2 py-0.5 rounded">#1</span>
+                            <span id="modal-classification-badge" class="text-xs uppercase tracking-widest font-black px-2.5 py-1 rounded-full">AI</span>
+                        </div>
+                        <h3 id="modal-title" class="text-xl md:text-2xl font-black text-slate-900 mt-1">Siri / Alexa Voice Assistant</h3>
+                    </div>
+                </div>
+
+                <!-- Inputs, Process, Outputs Breakdown -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4 text-center">
+                    <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-100">
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Input</span>
+                        <span id="modal-input" class="text-xs font-black text-indigo-600">Your Voice</span>
+                    </div>
+                    <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                        <span class="block text-[10px] font-bold text-indigo-200 uppercase tracking-wide">Model</span>
+                        <span id="modal-model" class="text-xs font-black">AI & Algorithm</span>
+                    </div>
+                    <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-100">
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Output</span>
+                        <span id="modal-output" class="text-xs font-black text-emerald-600">Answer / Action</span>
+                    </div>
+                </div>
+
+                <!-- Main explanation message -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-5">
+                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Detective Explanation</h4>
+                    <p id="modal-explanation-text" class="text-sm md:text-base text-slate-700 leading-relaxed font-semibold">
+                        The input is your voice, the output is an answer or action, and an AI model uses data and an algorithm to understand what you asked.
+                    </p>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-2">
+                    <button onclick="closeExplanationModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-200">
+                        Got it, thanks!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GUIDE/HELP MODAL -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border-4 border-slate-100 transform scale-95 transition-transform duration-300" id="help-modal-container">
+            <div class="bg-indigo-600 p-5 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    <h3 class="text-xl font-bold">Classroom Detective Guide</h3>
+                </div>
+                <button onclick="toggleHelpModal(false)" class="text-white hover:text-indigo-200 text-xl font-bold">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-1">🕵️‍♂️ Your Mission:</h4>
+                    <p class="text-slate-600 text-sm">
+                        We use different technologies every day, but which ones actually use **Artificial Intelligence (AI)**? Put your detective cap on and sort the cards in the Deck into their correct folders!
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-sky-50 border border-sky-200 p-3 rounded-xl text-xs">
+                        <strong class="text-sky-800 block mb-1">🤖 AI Category</strong>
+                        Uses models, learns patterns, handles raw datasets, predicts predictions dynamically.
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs">
+                        <strong class="text-amber-800 block mb-1">⚖️ Maybe / Some AI</strong>
+                        Features classic systems moving into advanced ones (hybrid rules and language databases).
+                    </div>
+                    <div class="bg-rose-50 border border-rose-200 p-3 rounded-xl text-xs">
+                        <strong class="text-rose-800 block mb-1">⚙️ Not AI Category</strong>
+                        Perfect system of formulas, calculators, clocks, simple hardcoded instruction lines.
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <h4 class="font-bold text-slate-900 mb-1">👉 How to Play:</h4>
+                    <ul class="list-disc pl-5 space-y-1.5 text-slate-600 text-sm">
+                        <li><strong>Drag and Drop:</strong> Pull any technology card with your mouse/finger and drop it directly inside a bucket.</li>
+                        <li><strong>Easy Tap-to-Place:</strong> For laptops, Chromebooks, or mobile tablets, click any card first (it turns gold), then click the target bucket above.</li>
+                        <li><strong>Check Answers:</strong> Click the green <strong>Check Answers</strong> button to verify your selections. Correct ones show green, incorrect show red!</li>
+                        <li><strong>Click for Secret Explanations:</strong> After you check answers, click on any of your sorted cards to read its detailed breakdown!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+                <button onclick="toggleHelpModal(false)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-xl">
+                    Let's Play!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONGRATULATIONS OVERLAY MODAL -->
+    <div id="congrats-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center shadow-2xl border-4 border-yellow-300 transform scale-95 transition-transform duration-300" id="congrats-modal-container">
+            <div class="w-24 h-24 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 animate-bounce">
+                👑
+            </div>
+            <h3 class="text-3xl font-black text-slate-900">Detective Star!</h3>
+            <p class="text-slate-500 font-bold text-sm mt-1">Perfect Case Solved!</p>
+            
+            <div class="bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-4 my-5">
+                <p class="text-slate-700 font-bold">You classified all <span class="text-indigo-600 font-extrabold text-lg">15/15</span> technology examples 100% correctly!</p>
+                <p class="text-xs text-slate-500 mt-2">You now understand the difference between AI models, hardcoded logic, and hybrid rules.</p>
+            </div>
+
+            <div class="flex gap-3 justify-center">
+                <button onclick="closeCongratsModal()" class="bg-slate-800 hover:bg-slate-950 text-white font-bold py-3 px-6 rounded-xl w-full shadow-md transition">
+                    Review Explanations
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLIENT LOGIC & STATE ENGINE -->
+    <script>
+        // Database of cards corresponding directly to the provided table
+        const cardsData = [
+            {
+                id: 1,
+                example: "Voice assistant",
+                subtext: "Siri, Alexa, Google Assistant",
+                classification: "AI",
+                explanation: "The input is your voice, the output is an answer or action, and an AI model uses data and an algorithm to understand what you asked.",
+                icon: "fa-microphone-lines",
+                color: "sky",
+                input: "Your Voice",
+                model: "AI Deep Learning",
+                output: "Actions / Answers"
+            },
+            {
+                id: 2,
+                example: "Calculator",
+                subtext: "Standard hand-held device",
+                classification: "Not AI",
+                explanation: "The input is numbers and operations, the output is an answer, but it follows a fixed algorithm instead of using a learning model.",
+                icon: "fa-calculator",
+                color: "rose",
+                input: "Numbers / Operators",
+                model: "Fixed Algorithm",
+                output: "Computed Answer"
+            },
+            {
+                id: 3,
+                example: "Autocorrect",
+                subtext: "On a phone or tablet keyboard",
+                classification: "Maybe/Some AI",
+                explanation: "The input is the words you type, the output is a suggested correction, and some versions use a model trained on language data while others mostly follow rules.",
+                icon: "fa-pen-nib",
+                color: "amber",
+                input: "Typed Words",
+                model: "Rules / Language Model",
+                output: "Word Suggestion"
+            },
+            {
+                id: 4,
+                example: "YouTube / Netflix Recs",
+                subtext: "Video recommendation systems",
+                classification: "AI",
+                explanation: "The input is viewing data, the output is suggested videos or shows, and a model uses an algorithm to predict what you might like.",
+                icon: "fa-play",
+                color: "sky",
+                input: "Viewing History",
+                model: "Prediction Model",
+                output: "Recommendations"
+            },
+            {
+                id: 5,
+                example: "Digital clock",
+                subtext: "Or normal bedside alarm clock",
+                classification: "Not AI",
+                explanation: "The input is the time you set, the output is an alarm sound, and it follows a simple fixed algorithm without learning from data.",
+                icon: "fa-clock",
+                color: "rose",
+                input: "Time / Alarm Setting",
+                model: "Basic Countdown",
+                output: "Beeping Alert"
+            },
+            {
+                id: 6,
+                example: "Smart thermostat",
+                subtext: "For example, Nest Home Thermostats",
+                classification: "Maybe/Some AI",
+                explanation: "The input is temperature and schedule data, the output is heating or cooling changes, and some thermostats use a model to learn patterns while others just follow programmed rules.",
+                icon: "fa-temperature-half",
+                color: "amber",
+                input: "Daily Climate Data",
+                model: "Schedule Rules / Model",
+                output: "Thermostat Action"
+            },
+            {
+                id: 7,
+                example: "ChatGPT",
+                subtext: "Or other smart AI chatbots",
+                classification: "AI",
+                explanation: "The input is your prompt, the output is generated text, and a large language model uses patterns from training data and an algorithm to respond.",
+                icon: "fa-robot",
+                color: "sky",
+                input: "Your Text Prompt",
+                model: "Large Language Model",
+                output: "Generated Text"
+            },
+            {
+                id: 8,
+                example: "Classroom timer",
+                subtext: "The timer displayed on the board",
+                classification: "Not AI",
+                explanation: "The input is the number of minutes set, the output is a countdown and alert, and it follows a fixed algorithm rather than using a model.",
+                icon: "fa-stopwatch",
+                color: "rose",
+                input: "Minutes & Seconds",
+                model: "Fixed Subtraction",
+                output: "Buzzer Ringing"
+            },
+            {
+                id: 9,
+                example: "Google Translate",
+                subtext: "Or other multilingual translation apps",
+                classification: "AI",
+                explanation: "The input is text or speech in one language, the output is another language, and a model uses language data and an algorithm to make the translation.",
+                icon: "fa-language",
+                color: "sky",
+                input: "Source Language Text",
+                model: "Translation Model",
+                output: "Translated Language"
+            },
+            {
+                id: 10,
+                example: "Spell-check underline",
+                subtext: "Underlining mistakes in word processors",
+                classification: "Maybe/Some AI",
+                explanation: "The input is typed text, the output is an underline or suggestion, and some systems use only word-list data while newer ones use a language model.",
+                icon: "fa-spell-check",
+                color: "amber",
+                input: "Your Written Draft",
+                model: "Dictionary DB / AI Model",
+                output: "Red Curly Lines"
+            },
+            {
+                id: 11,
+                example: "Lunch barcode scanner",
+                subtext: "School cafeteria checkout terminal",
+                classification: "Not AI",
+                explanation: "The input is a barcode, the output is the student’s lunch account information, and it follows a fixed algorithm to look up stored data.",
+                icon: "fa-barcode",
+                color: "rose",
+                input: "Laser Scan Code",
+                model: "Database Lookup",
+                output: "Account Screen Info"
+            },
+            {
+                id: 12,
+                example: "Face unlock",
+                subtext: "Using facial scanner on a mobile device",
+                classification: "AI",
+                explanation: "The input is an image of a face, the output is unlock or do not unlock, and a trained model uses image data and an algorithm to compare faces.",
+                icon: "fa-face-smile",
+                color: "sky",
+                input: "Camera Scan / Image",
+                model: "Neural Face Model",
+                output: "Secure Unlock Action"
+            },
+            {
+                id: 13,
+                example: "Smart speaker request",
+                subtext: "Saying a song name to a live home speaker",
+                classification: "AI",
+                explanation: "The input is your spoken request, the output is music, and an AI model uses speech data and an algorithm to understand the command.",
+                icon: "fa-volume-high",
+                color: "sky",
+                input: "Spoken Song Command",
+                model: "Speech NLP Model",
+                output: "Streaming Song Audio"
+            },
+            {
+                id: 14,
+                example: "Vending machine",
+                subtext: "Snack or soda dispensing unit",
+                classification: "Not AI",
+                explanation: "The input is money and a button choice, the output is a snack or drink, and the machine follows a fixed algorithm without learning from data.",
+                icon: "fa-cookie",
+                color: "rose",
+                input: "Cash & Selection Button",
+                model: "Mechanical Logic Gates",
+                output: "Dispensed Snack"
+            },
+            {
+                id: 15,
+                example: "Quick, Draw! game",
+                subtext: "Web sketch guessing arcade game",
+                classification: "AI",
+                explanation: "The input is your drawing, the output is the computer’s guess, and an AI model uses drawing data and an algorithm to recognize patterns.",
+                icon: "fa-palette",
+                color: "sky",
+                input: "Vector Canvas Drawing",
+                model: "Visual Recognition Model",
+                output: "Dynamic AI Guess"
+            }
+        ];
+
+        // Active State of Game
+        let currentSorting = {}; // cardId -> category string ("AI", "Maybe/Some AI", "Not AI")
+        let checkedState = false; // true if teacher/student clicked "Check Answers"
+        let selectedClickCard = null; // tracker for portable touch/click interaction model
+
+        // Synthesizer Audio Utility
+        let audioContext;
+        function getAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        function playSynthSound(type) {
+            try {
+                const ctx = getAudioContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+
+                if (type === 'select') {
+                    // Quick high pulse
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(330, now);
+                    osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'drop') {
+                    // Soft organic slide
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(261.63, now); // C4
+                    osc.frequency.exponentialRampToValueAtTime(392.00, now + 0.15); // G4
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'correct') {
+                    // Cheerful double chime
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'incorrect') {
+                    // Unobtrusive low warning buzz
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'fanfare') {
+                    // Complete chord sequence
+                    const notes = [261.63, 329.63, 392.00, 523.25]; // C major chord
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        o.type = 'triangle';
+                        o.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                        g.gain.setValueAtTime(0.15, now + (idx * 0.1));
+                        g.gain.linearRampToValueAtTime(0.01, now + (idx * 0.1) + 0.4);
+                        o.start(now + (idx * 0.1));
+                        o.stop(now + (idx * 0.1) + 0.45);
+                    });
+                }
+            } catch (e) {
+                // Audio fallback silence safe
+                console.warn("Audio Context blocked or unsupported:", e);
+            }
+        }
+
+        // INITIALIZATION
+        window.onload = function() {
+            // Shuffle array of cards to offer unique classroom layout every reload
+            shuffleCards();
+            renderDeck();
+            updateCounters();
+            
+            // Auto open helper manual instructions on first page load
+            setTimeout(() => {
+                toggleHelpModal(true);
+            }, 600);
+        }
+
+        // Shuffle state utility
+        let sortedShuffledList = [...cardsData];
+        function shuffleCards() {
+            sortedShuffledList.sort(() => Math.random() - 0.5);
+        }
+
+        // RENDER DECK
+        function renderDeck() {
+            const container = document.getElementById('deck-container');
+            container.innerHTML = '';
+
+            let cardsInDeck = 0;
+
+            sortedShuffledList.forEach(card => {
+                // If this card is not yet classified, render in deck
+                if (!currentSorting[card.id]) {
+                    cardsInDeck++;
+                    const cardEl = createCardElement(card, false);
+                    container.appendChild(cardEl);
+                }
+            });
+
+            // If empty, show beautiful text placeholder
+            if (cardsInDeck === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center p-6 text-center text-slate-400">
+                        <span class="text-4xl mb-2">🎉</span>
+                        <p class="font-bold text-slate-500">All technology cards are placed!</p>
+                        <p class="text-xs">Click the big "Check Answers" button above to verify.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // CREATE A CARD ELEMENT (Reusable)
+        function createCardElement(card, isInBucket) {
+            const el = document.createElement('div');
+            el.id = `card-${card.id}`;
+            el.draggable = !checkedState; // Don't allow drag once checked/locked
+            
+            // Base Class Style
+            let borderStyle = "border-slate-300";
+            let bgStyle = "bg-white hover:border-indigo-400 hover:shadow-lg";
+            let textColor = "text-slate-800";
+            let subtextStyle = "text-slate-400";
+            let stateBadge = "";
+
+            // Dynamic Styling If Feedback is Checked
+            if (checkedState && currentSorting[card.id]) {
+                const isCorrect = isClassificationCorrect(card.id);
+                if (isCorrect) {
+                    borderStyle = "border-emerald-500 border-2 shadow-emerald-100";
+                    bgStyle = "bg-emerald-50 hover:bg-emerald-100 cursor-help transform hover:-translate-y-1";
+                    textColor = "text-emerald-900";
+                    subtextStyle = "text-emerald-600";
+                    stateBadge = `
+                        <div class="absolute -top-2 -right-2 bg-emerald-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs shadow font-black">
+                            ✓
+                        </div>
+                    `;
+                } else {
+                    borderStyle = "border-rose-400 border-2 shadow-rose-100 shake-element";
+                    bgStyle = "bg-rose-50 hover:bg-rose-100 cursor-help transform hover:-translate-y-1";
+                    textColor = "text-rose-900";
+                    subtextStyle = "text-rose-600";
+                    stateBadge = `
+                        <div class="absolute -top-2 -right-2 bg-rose-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs shadow font-black">
+                            ✗
+                        </div>
+                    `;
+                }
+            } else if (selectedClickCard && selectedClickCard.id === card.id) {
+                // Highlighting card selected for Click-to-Place sorting
+                borderStyle = "border-amber-400 border-2 ring-4 ring-amber-200";
+                bgStyle = "bg-amber-50 animate-pulse";
+            }
+
+            el.className = `relative w-full max-w-[210px] min-w-[130px] p-3 md:p-4 rounded-2xl border-2 ${borderStyle} ${bgStyle} ${textColor} transition-all duration-200 select-none cursor-grab active:cursor-grabbing flex flex-col justify-between h-[120px] shadow-sm`;
+
+            el.innerHTML = `
+                ${stateBadge}
+                <div>
+                    <div class="flex items-start justify-between gap-1 mb-1">
+                        <span class="text-[10px] font-black tracking-widest text-slate-400">#${card.id}</span>
+                        <i class="fa-solid ${card.icon} text-slate-400 text-sm"></i>
+                    </div>
+                    <h4 class="font-black text-xs md:text-sm tracking-wide leading-tight line-clamp-2">${card.example}</h4>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold ${subtextStyle} leading-tight line-clamp-2 mt-1 mb-1">${card.subtext}</p>
+                    ${!isInBucket ? `
+                        <div class="flex items-center gap-1 mt-1 text-[9px] font-extrabold justify-end md:hidden text-indigo-500 uppercase">
+                            <span>Tap to Sort</span> <i class="fa-solid fa-arrow-right-long"></i>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            // EVENT LISTENERS FOR DRAG & DROP
+            el.ondragstart = (event) => {
+                if (checkedState) return;
+                event.dataTransfer.setData("text/plain", card.id);
+                // Custom tiny ghost frame style during drag
+                setTimeout(() => el.classList.add('opacity-40'), 0);
+            };
+
+            el.ondragend = () => {
+                el.classList.remove('opacity-40');
+            };
+
+            // EVENT LISTENERS FOR CLICKS (explanation popup or fallback click-to-place)
+            el.onclick = (event) => {
+                event.stopPropagation();
+                handleCardInteraction(card);
+            };
+
+            return el;
+        }
+
+        // INTERACTION COORDINATOR (Touch/Click Sort vs Explanation)
+        function handleCardInteraction(card) {
+            // IF feedback has already been validated, standard click opens explanation modal
+            if (checkedState) {
+                openExplanationModal(card);
+                return;
+            }
+
+            // Otherwise, manage Click-To-Place utility system
+            playSynthSound('select');
+
+            // If same card clicked again, unselect it
+            if (selectedClickCard && selectedClickCard.id === card.id) {
+                cancelSelection();
+                return;
+            }
+
+            // Choose and highlight selected target
+            selectedClickCard = card;
+            
+            // Build visual notice guide bar
+            const bar = document.getElementById('selection-helper-bar');
+            const label = document.getElementById('selected-card-name');
+            label.textContent = `"${card.example}"`;
+            bar.classList.remove('hidden');
+
+            // Redraw card elements to add active border ring
+            renderDeck();
+            rebuildBuckets();
+        }
+
+        function cancelSelection() {
+            selectedClickCard = null;
+            document.getElementById('selection-helper-bar').classList.add('hidden');
+            renderDeck();
+            rebuildBuckets();
+        }
+
+        // BUCKET MOUSE CLICKS FALLBACK FOR MOBILES
+        function bucketClick(bucketShortName) {
+            if (!selectedClickCard || checkedState) return;
+
+            let classification = "";
+            if (bucketShortName === 'AI') classification = "AI";
+            if (bucketShortName === 'Maybe') classification = "Maybe/Some AI";
+            if (bucketShortName === 'Not') classification = "Not AI";
+
+            moveCard(selectedClickCard.id, classification);
+            cancelSelection();
+        }
+
+        // DRAG & DROP UTILITY EVENT DELEGATES
+        function allowDrop(event) {
+            event.preventDefault();
+            const zone = event.currentTarget;
+            zone.classList.add('dragover');
+        }
+
+        function dragLeave(event) {
+            const zone = event.currentTarget;
+            zone.classList.remove('dragover');
+        }
+
+        function handleDrop(event, category) {
+            event.preventDefault();
+            const zone = event.currentTarget;
+            zone.classList.remove('dragover');
+
+            const cardId = parseInt(event.dataTransfer.getData("text/plain"));
+            if (!isNaN(cardId)) {
+                moveCard(cardId, category);
+            }
+        }
+
+        // CORE CARD MOVEMENT LOGIC
+        function moveCard(cardId, targetCategory) {
+            currentSorting[cardId] = targetCategory;
+            playSynthSound('drop');
+            
+            // Redraw screen state dynamically
+            renderDeck();
+            rebuildBuckets();
+            updateCounters();
+        }
+
+        // REBUILD COMPONENT CARDS WITHIN CATEGORY BUCKETS
+        function rebuildBuckets() {
+            const buckets = {
+                'AI': document.getElementById('list-AI'),
+                'Maybe/Some AI': document.getElementById('list-Maybe'),
+                'Not AI': document.getElementById('list-Not')
+            };
+
+            // Reset current lists
+            Object.values(buckets).forEach(b => b.innerHTML = '');
+
+            // Loop all cards
+            cardsData.forEach(card => {
+                const currentPlace = currentSorting[card.id];
+                if (currentPlace) {
+                    const cardEl = createCardElement(card, true);
+                    
+                    // Add quick mini button on sorted cards to easily return them back to deck (if not locked by verification check)
+                    if (!checkedState) {
+                        const returnButton = document.createElement('button');
+                        returnButton.className = "absolute top-2 right-2 text-slate-400 hover:text-slate-800 bg-white shadow rounded-full w-4 h-4 flex items-center justify-center text-[10px] border border-slate-200 transition";
+                        returnButton.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                        returnButton.onclick = (e) => {
+                            e.stopPropagation(); // Avoid card container highlight triggers
+                            delete currentSorting[card.id];
+                            playSynthSound('drop');
+                            renderDeck();
+                            rebuildBuckets();
+                            updateCounters();
+                        };
+                        cardEl.appendChild(returnButton);
+                    }
+
+                    buckets[currentPlace].appendChild(cardEl);
+                }
+            });
+
+            // Add friendly prompt text inside folders if they are empty
+            Object.keys(buckets).forEach(category => {
+                if (buckets[category].children.length === 0) {
+                    buckets[category].innerHTML = `
+                        <p class="text-xs text-slate-400 italic py-4 pointer-events-none text-center">
+                            Drag or tap cards here
+                        </p>
+                    `;
+                }
+            });
+        }
+
+        // PROGRESS/SCORE UTILITIES
+        function updateCounters() {
+            const totalSorted = Object.keys(currentSorting).length;
+            document.getElementById('sorted-counter').textContent = `${totalSorted} / 15`;
+        }
+
+        // CHECK VALIDATION ENGINE
+        function checkAnswers() {
+            // Get count of currently classified items
+            const totalSorted = Object.keys(currentSorting).length;
+
+            if (totalSorted === 0) {
+                alert("Detective, put at least one card in a box before checking your work!");
+                return;
+            }
+
+            // Lock gameplay, evaluate correct answers
+            checkedState = true;
+            document.getElementById('game-status').className = "text-sm font-black text-amber-600 block px-2 py-0.5 rounded-full bg-amber-100";
+            document.getElementById('game-status').textContent = "Feedback Checked 🧐";
+
+            // Recalculate and rebuild components
+            renderDeck();
+            rebuildBuckets();
+
+            // Run analysis of perfect scoring to activate confetti celebrate animation
+            let score = 0;
+            cardsData.forEach(card => {
+                if (currentSorting[card.id] && isClassificationCorrect(card.id)) {
+                    score++;
+                }
+            });
+
+            if (score === totalSorted && totalSorted === 15) {
+                // Play awesome fanfare sound
+                playSynthSound('fanfare');
+                
+                // Blast confetti across the entire screen!
+                triggerConfettiFanfare();
+
+                setTimeout(() => {
+                    openCongratsModal();
+                }, 800);
+            } else {
+                // Play feedback audio indicating verification is complete
+                if (score > (totalSorted / 2)) {
+                    playSynthSound('correct');
+                } else {
+                    playSynthSound('incorrect');
+                }
+            }
+
+            // Transform button action into dynamic toggle reset system
+            const checkBtn = document.getElementById('check-btn');
+            checkBtn.className = "bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-md border-b-4 border-amber-700 transition active:translate-y-1 active:border-b-0 flex items-center gap-2";
+            checkBtn.innerHTML = `<i class="fa-solid fa-shuffle"></i> Play Again`;
+            checkBtn.onclick = resetGame;
+        }
+
+        function isClassificationCorrect(cardId) {
+            const cardObj = cardsData.find(c => c.id === cardId);
+            return currentSorting[cardId] === cardObj.classification;
+        }
+
+        // CELEBRATION EFFECTS
+        function triggerConfettiFanfare() {
+            const count = 200;
+            const defaults = {
+                origin: { y: 0.7 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti({
+                    ...defaults,
+                    ...opts,
+                    particleCount: Math.floor(count * particleRatio)
+                });
+            }
+
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+            });
+            fire(0.2, {
+                spread: 60,
+            });
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                scalar: 1.2
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+        }
+
+        // RESET GAMESTATE
+        function resetGame() {
+            currentSorting = {};
+            checkedState = false;
+            selectedClickCard = null;
+
+            document.getElementById('game-status').className = "text-sm font-black text-indigo-600 block px-2 py-0.5 rounded-full bg-indigo-100";
+            document.getElementById('game-status').textContent = "Investigating 🔍";
+
+            const checkBtn = document.getElementById('check-btn');
+            checkBtn.className = "bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-md border-b-4 border-green-700 transition active:translate-y-1 active:border-b-0 flex items-center gap-2";
+            checkBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Check Answers`;
+            checkBtn.onclick = checkAnswers;
+
+            document.getElementById('selection-helper-bar').classList.add('hidden');
+
+            shuffleCards();
+            renderDeck();
+            rebuildBuckets();
+            updateCounters();
+        }
+
+        // MODAL TOGGLES
+        function toggleHelpModal(show) {
+            const modal = document.getElementById('help-modal');
+            const container = document.getElementById('help-modal-container');
+            toggleModalBase(modal, container, show);
+        }
+
+        function openExplanationModal(card) {
+            // Fill details dynamically
+            document.getElementById('modal-number').textContent = `#${card.id}`;
+            document.getElementById('modal-title').textContent = card.example;
+            document.getElementById('modal-input').textContent = card.input;
+            document.getElementById('modal-model').textContent = card.model;
+            document.getElementById('modal-output').textContent = card.output;
+            document.getElementById('modal-explanation-text').textContent = card.explanation;
+
+            // Icon swap
+            const iconEl = document.getElementById('modal-icon');
+            iconEl.className = `fa-solid ${card.icon} animate-pulse`;
+
+            // Style configuration mapping based on classifications
+            const badge = document.getElementById('modal-classification-badge');
+            const topAccent = document.getElementById('modal-header-accent');
+            const iconBg = document.getElementById('modal-icon-bg');
+
+            if (card.classification === 'AI') {
+                badge.className = "text-xs uppercase tracking-widest font-black px-2.5 py-1 rounded-full bg-sky-100 text-sky-800";
+                badge.textContent = "AI Classification";
+                topAccent.className = "h-4 bg-sky-500";
+                iconBg.className = "bg-sky-100 text-sky-600 p-4 rounded-2xl text-2xl shadow-inner";
+            } else if (card.classification === 'Maybe/Some AI') {
+                badge.className = "text-xs uppercase tracking-widest font-black px-2.5 py-1 rounded-full bg-amber-100 text-amber-800";
+                badge.textContent = "Maybe / Some AI";
+                topAccent.className = "h-4 bg-amber-500";
+                iconBg.className = "bg-amber-100 text-amber-600 p-4 rounded-2xl text-2xl shadow-inner";
+            } else {
+                badge.className = "text-xs uppercase tracking-widest font-black px-2.5 py-1 rounded-full bg-rose-100 text-rose-800";
+                badge.textContent = "Not AI Classification";
+                topAccent.className = "h-4 bg-rose-500";
+                iconBg.className = "bg-rose-100 text-rose-600 p-4 rounded-2xl text-2xl shadow-inner";
+            }
+
+            const modal = document.getElementById('explanation-modal');
+            const container = document.getElementById('modal-container');
+            toggleModalBase(modal, container, true);
+        }
+
+        function closeExplanationModal() {
+            const modal = document.getElementById('explanation-modal');
+            const container = document.getElementById('modal-container');
+            toggleModalBase(modal, container, false);
+        }
+
+        function openCongratsModal() {
+            const modal = document.getElementById('congrats-modal');
+            const container = document.getElementById('congrats-modal-container');
+            toggleModalBase(modal, container, true);
+        }
+
+        function closeCongratsModal() {
+            const modal = document.getElementById('congrats-modal');
+            const container = document.getElementById('congrats-modal-container');
+            toggleModalBase(modal, container, false);
+        }
+
+        // Clean generalized animator utility for fade & scaling effect transitions
+        function toggleModalBase(modalEl, containerEl, show) {
+            if (show) {
+                modalEl.classList.remove('hidden');
+                setTimeout(() => {
+                    modalEl.classList.remove('opacity-0');
+                    containerEl.classList.remove('scale-95');
+                }, 10);
+            } else {
+                modalEl.classList.add('opacity-0');
+                containerEl.classList.add('scale-95');
+                setTimeout(() => {
+                    modalEl.classList.add('hidden');
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>
