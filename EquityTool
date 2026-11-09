@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Equity Tracking Tool</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for Visual Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-indigo-600 rounded-lg">
+          <i data-lucide="network" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight">Equity Tracking Tool</h1>
+          <p class="text-xs text-slate-400">Classroom Interaction & Equity Analytics</p>
+        </div>
+      </div>
+
+      <!-- NAV TABS -->
+      <nav class="flex space-x-1 sm:space-x-2">
+        <button id="nav-roster" onclick="switchTab('roster')" class="nav-btn flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors bg-indigo-600 text-white">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">1. Roster</span>
+        </button>
+        <button id="nav-seating" onclick="switchTab('seating')" class="nav-btn flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="grid" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">2. Seating Chart</span>
+        </button>
+        <button id="nav-live" onclick="switchTab('live')" class="nav-btn flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="radio" class="w-4 h-4 text-emerald-400"></i>
+          <span class="hidden sm:inline">3. Live Session</span>
+        </button>
+        <button id="nav-analytics" onclick="switchTab('analytics')" class="nav-btn flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">4. Analytics</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ==================== TAB 1: ROSTER & IDENTIFIERS ==================== -->
+    <section id="tab-roster" class="tab-content space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Student Roster & Identity Profiles</h2>
+            <p class="text-sm text-slate-500">Add students and assign multiple identity tags (e.g., Female, BIPOC, ELL, First-Gen) for disaggregated equity analysis.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadSampleData()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg flex items-center space-x-1">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>Load Sample Class</span>
+            </button>
+            <button onclick="clearRoster()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-medium rounded-lg flex items-center space-x-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              <span>Clear All</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ADD STUDENT FORM -->
+        <form id="add-student-form" onsubmit="handleAddStudent(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+          <div class="md:col-span-4">
+            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Student Full Name</label>
+            <input type="text" id="input-student-name" required placeholder="e.g. Maya Lin" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div class="md:col-span-6">
+            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Identity Tags (Comma-separated)</label>
+            <input type="text" id="input-student-tags" placeholder="e.g. Female, BIPOC, ELL, First-Gen" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <p class="text-[11px] text-slate-400 mt-1">Tip: Standardize tags across students for accurate analytics grouping.</p>
+          </div>
+          <div class="md:col-span-2">
+            <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg flex items-center justify-center space-x-1 shadow-sm transition-all">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>Add Student</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- ROSTER TABLE -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-xs uppercase tracking-wider">
+              <tr>
+                <th class="p-3.5">Student Name</th>
+                <th class="p-3.5">Identity Markers</th>
+                <th class="p-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="roster-table-body" class="divide-y divide-slate-200 bg-white">
+              <!-- Dynamic Rows -->
+            </tbody>
+          </table>
+          <div id="empty-roster-msg" class="p-8 text-center text-slate-400 hidden">
+            <i data-lucide="users" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+            <p>No students in the roster yet. Add students above or load sample data.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button onclick="switchTab('seating')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg flex items-center space-x-2 shadow-sm">
+            <span>Proceed to Seating Chart</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== TAB 2: VISUAL SEATING CHART ==================== -->
+    <section id="tab-seating" class="tab-content space-y-6 hidden">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Interactive Classroom Layout</h2>
+            <p class="text-sm text-slate-500">Drag student nodes to replicate your physical seating setup (Socratic circle, pods, or rows).</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="arrangeLayout('circle')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg flex items-center space-x-1">
+              <i data-lucide="circle" class="w-3.5 h-3.5"></i>
+              <span>Circle Layout</span>
+            </button>
+            <button onclick="arrangeLayout('grid')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg flex items-center space-x-1">
+              <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i>
+              <span>Grid Layout</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CANVAS CONTAINER -->
+        <div id="seating-canvas-container" class="relative w-full h-[520px] bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800">
+          <div class="absolute top-3 left-3 z-10 bg-slate-800/80 backdrop-blur px-3 py-1.5 rounded-lg text-xs text-slate-300 flex items-center space-x-2">
+            <i data-lucide="move" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>Drag nodes to position students</span>
+          </div>
+
+          <!-- Classroom Focal Object (e.g. Center Table / Podium) -->
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-dashed border-slate-700 rounded-3xl w-72 h-40 flex flex-col items-center justify-center pointer-events-none opacity-40">
+            <span class="text-slate-500 font-bold uppercase tracking-widest text-xs">Discussion Table / Center</span>
+          </div>
+
+          <!-- Interactive Node Canvas -->
+          <div id="seating-nodes-layer" class="w-full h-full relative">
+            <!-- Student circles placed here -->
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between items-center">
+          <button onclick="switchTab('roster')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-lg flex items-center space-x-1">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Roster</span>
+          </button>
+          <button onclick="switchTab('live')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg flex items-center space-x-2 shadow-sm">
+            <span>Start Live Session</span>
+            <i data-lucide="play" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== TAB 3: LIVE SESSION & FLOW MAP ==================== -->
+    <section id="tab-live" class="tab-content space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT: VISUAL MAP & FLOW SVG -->
+        <div class="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <div class="flex items-center space-x-2">
+              <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <h3 class="font-bold text-slate-900 text-sm">Live Interaction Map</h3>
+            </div>
+            <div class="flex items-center space-x-2 text-xs">
+              <button onclick="clearFlowVectors()" class="text-slate-500 hover:text-slate-700 px-2 py-1 bg-slate-100 rounded">Clear Vectors</button>
+            </div>
+          </div>
+
+          <!-- MAP CANVAS -->
+          <div id="live-map-container" class="relative w-full h-[500px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+            <!-- SVG Arrow Layer -->
+            <svg id="svg-flow-layer" class="absolute inset-0 w-full h-full pointer-events-none z-10">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#818cf8" />
+                </marker>
+                <marker id="arrow-last" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399" />
+                </marker>
+              </defs>
+            </svg>
+
+            <!-- Student Nodes Container -->
+            <div id="live-nodes-layer" class="w-full h-full relative z-20">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: SPEAKER CONTROLLER & CONTEXT PANEL -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- CURRENT SPEAKER CONTROL CARD -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">Active Speaker</span>
+                <h3 id="current-speaker-display" class="text-2xl font-black text-slate-900">Select a Student</h3>
+                <p id="current-speaker-tags" class="text-xs text-slate-400 mt-0.5">Click any node on the map to start turn</p>
+              </div>
+              <div class="text-right">
+                <div id="live-timer" class="font-mono text-3xl font-bold text-slate-900">00:00</div>
+                <span id="timer-status" class="text-[10px] uppercase font-bold text-slate-400">Paused</span>
+              </div>
+            </div>
+
+            <!-- TARGET SPEAKER SELECTOR -->
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Directed Contribution To (Optional Target):</label>
+              <select id="target-speaker-select" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">-- Open Discussion / Whole Group --</option>
+              </select>
+            </div>
+
+            <!-- CONTRIBUTION TYPE TAGS -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-2">Contribution Category:</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="setContributionTag('Question')" class="tag-btn text-xs p-2 rounded-lg border border-slate-200 font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-1.5 active:scale-95 transition-all">
+                  <i data-lucide="help-circle" class="w-3.5 h-3.5 text-sky-500"></i>
+                  <span>Question</span>
+                </button>
+                <button type="button" onclick="setContributionTag('Text/Info Reference')" class="tag-btn text-xs p-2 rounded-lg border border-slate-200 font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-1.5 active:scale-95 transition-all">
+                  <i data-lucide="book-open" class="w-3.5 h-3.5 text-amber-500"></i>
+                  <span>Text/Info Reference</span>
+                </button>
+                <button type="button" onclick="setContributionTag('Encouraging Others')" class="tag-btn text-xs p-2 rounded-lg border border-slate-200 font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-1.5 active:scale-95 transition-all">
+                  <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500"></i>
+                  <span>Encouraging Others</span>
+                </button>
+                <button type="button" onclick="setContributionTag('Follow-up Question')" class="tag-btn text-xs p-2 rounded-lg border border-slate-200 font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-1.5 active:scale-95 transition-all">
+                  <i data-lucide="message-square" class="w-3.5 h-3.5 text-indigo-500"></i>
+                  <span>Follow-up Question</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- TURN ACTION BUTTONS -->
+            <div class="pt-2 flex space-x-2">
+              <button id="btn-end-turn" onclick="completeTurn()" disabled class="flex-1 py-2.5 bg-emerald-600 disabled:bg-slate-200 hover:bg-emerald-700 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center space-x-1">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>Complete Turn</span>
+              </button>
+              <button onclick="endDiscussionSession()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs rounded-lg transition-colors flex items-center space-x-1">
+                <i data-lucide="square" class="w-3.5 h-3.5"></i>
+                <span>End Session</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- REAL-TIME LOG FEED -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex-1 flex flex-col">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span>Discussion Activity Feed</span>
+              <span id="turn-counter-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">0 Turns</span>
+            </h4>
+            <div id="live-feed-log" class="flex-1 max-h-48 overflow-y-auto space-y-2 text-xs custom-scrollbar pr-1">
+              <p class="text-slate-400 italic text-center py-4">No speech turns recorded yet.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ==================== TAB 4: INTERACTIVE ANALYTICS ==================== -->
+    <section id="tab-analytics" class="tab-content space-y-6 hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-black text-slate-900">Discussion Analytics & Equity Metrics</h2>
+          <p class="text-sm text-slate-500">Comprehensive breakdown of speech turns, duration, interaction flows, and identity group comparisons.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="exportCSV()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Export CSV Data</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- HIGHLIGHT SUMMARY STATS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Duration</span>
+          <div id="stat-total-time" class="text-2xl font-bold text-slate-900 mt-1">0m 0s</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Turns</span>
+          <div id="stat-total-turns" class="text-2xl font-bold text-indigo-600 mt-1">0</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Participation Rate</span>
+          <div id="stat-part-rate" class="text-2xl font-bold text-emerald-600 mt-1">0%</div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Avg Turn Duration</span>
+          <div id="stat-avg-turn" class="text-2xl font-bold text-amber-600 mt-1">0s</div>
+        </div>
+      </div>
+
+      <!-- VISUAL CHARTS GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- CHART 1: IDENTITY GROUPS COMPARISON -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-slate-900">Equity Breakdown by Identity Group</h3>
+              <p class="text-xs text-slate-400">Average speaking time per student across identity markers</p>
+            </div>
+            <select id="identity-metric-select" onchange="renderAnalyticsCharts()" class="text-xs border border-slate-300 rounded-md px-2 py-1 bg-slate-50">
+              <option value="time">Avg Time / Student</option>
+              <option value="turns">Avg Turns / Student</option>
+              <option value="total_time">Total Group Time</option>
+            </select>
+          </div>
+          <div class="relative flex-1 min-h-[280px]">
+            <canvas id="chart-identity"></canvas>
+          </div>
+        </div>
+
+        <!-- CHART 2: INDIVIDUAL SPEAKING TIME -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-slate-900">Individual Student Speaking Time</h3>
+              <p class="text-xs text-slate-400">Total duration spoken by each student (seconds)</p>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[280px]">
+            <canvas id="chart-students"></canvas>
+          </div>
+        </div>
+
+        <!-- CHART 3: CONTRIBUTION TYPES BREAKDOWN -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-slate-900">Contribution Categories</h3>
+              <p class="text-xs text-slate-400">Distribution of speech intention tags</p>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[280px]">
+            <canvas id="chart-categories"></canvas>
+          </div>
+        </div>
+
+        <!-- MATRIX / NETWORK FLOW OVERVIEW -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-slate-900">Interaction Vector Matrix</h3>
+              <p class="text-xs text-slate-400">Who spoke after whom (or directed comments to)</p>
+            </div>
+          </div>
+          <div id="interaction-matrix-container" class="overflow-x-auto custom-scrollbar flex-1 text-xs">
+            <!-- Dynamic Matrix Table -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DETAILED DATA TABLES -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-900 text-lg">Detailed Individual Metrics</h3>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase tracking-wider">
+              <tr>
+                <th class="p-3">Student</th>
+                <th class="p-3">Identity Tags</th>
+                <th class="p-3">Turns Spoken</th>
+                <th class="p-3">Total Time</th>
+                <th class="p-3">Avg Turn Time</th>
+                <th class="p-3">Contributions Breakdown</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-table-body" class="divide-y divide-slate-200 bg-white">
+              <!-- Dynamic Rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // ==========================================
+    // GLOBAL STATE
+    // ==========================================
+    let roster = [];
+    let seatingPositions = {}; // studentId -> {x, y} percentage
+    let discussionEvents = []; // Array of turn events
+    
+    // Active Timer state
+    let activeStudentId = null;
+    let turnStartTime = null;
+    let timerInterval = null;
+    let turnElapsedSeconds = 0;
+    let currentTag = 'General Contribution';
+    let previousSpeakerId = null;
+
+    // Charts references
+    let chartIdentityRef = null;
+    let chartStudentsRef = null;
+    let chartCategoriesRef = null;
+
+    // Sample initial dataset
+    const sampleStudents = [
+      { id: '1', name: 'Maya Lin', tags: ['Female', 'BIPOC', 'ELL'] },
+      { id: '2', name: 'Carlos Mendez', tags: ['Male', 'BIPOC', 'First-Gen'] },
+      { id: '3', name: 'Sarah Jenkins', tags: ['Female', 'General'] },
+      { id: '4', name: 'Jordan Taylor', tags: ['Non-Binary', 'BIPOC'] },
+      { id: '5', name: 'David Kim', tags: ['Male', 'BIPOC'] },
+      { id: '6', name: 'Aisha Khan', tags: ['Female', 'BIPOC', 'ELL'] },
+      { id: '7', name: 'Liam O\'Connor', tags: ['Male', 'First-Gen'] },
+      { id: '8', name: 'Elena Rossi', tags: ['Female', 'General'] }
+    ];
+
+    // ==========================================
+    // INIT & NAVIGATION
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadSampleData();
+    });
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('bg-indigo-600', 'text-white');
+        activeNav.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+      }
+
+      if (tabId === 'seating') renderSeatingChart();
+      if (tabId === 'live') renderLiveMap();
+      if (tabId === 'analytics') renderAnalyticsDashboard();
+    }
+
+    // ==========================================
+    // TAB 1: ROSTER & IDENTIFIER LOGIC
+    // ==========================================
+    function loadSampleData() {
+      roster = JSON.parse(JSON.stringify(sampleStudents));
+      arrangeLayout('circle');
+      renderRosterTable();
+    }
+
+    function clearRoster() {
+      roster = [];
+      seatingPositions = {};
+      discussionEvents = [];
+      renderRosterTable();
+    }
+
+    function handleAddStudent(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('input-student-name');
+      const tagsInput = document.getElementById('input-student-tags');
+
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      const rawTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t.length > 0);
+      const tags = rawTags.length > 0 ? rawTags : ['General'];
+
+      const newStudent = {
+        id: Date.now().toString(),
+        name,
+        tags
+      };
+
+      roster.push(newStudent);
+      nameInput.value = '';
+      tagsInput.value = '';
+
+      // Default seat position
+      seatingPositions[newStudent.id] = { x: 50, y: 50 };
+      renderRosterTable();
+    }
+
+    function removeStudent(id) {
+      roster = roster.filter(s => s.id !== id);
+      delete seatingPositions[id];
+      renderRosterTable();
+    }
+
+    function renderRosterTable() {
+      const tbody = document.getElementById('roster-table-body');
+      const emptyMsg = document.getElementById('empty-roster-msg');
+      tbody.innerHTML = '';
+
+      if (roster.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      } else {
+        emptyMsg.classList.add('hidden');
+      }
+
+      roster.forEach(s => {
+        const tagBadges = s.tags.map(tag => 
+          `<span class="inline-block px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-md text-xs font-semibold mr-1 mb-1">${escapeHtml(tag)}</span>`
+        ).join('');
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition-colors";
+        tr.innerHTML = `
+          <td class="p-3.5 font-semibold text-slate-800">${escapeHtml(s.name)}</td>
+          <td class="p-3.5">${tagBadges}</td>
+          <td class="p-3.5 text-right">
+            <button onclick="removeStudent('${s.id}')" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // Helper for HTML Escaping
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+
+    // ==========================================
+    // TAB 2: VISUAL SEATING CHART BUILDER
+    // ==========================================
+    function arrangeLayout(type) {
+      if (roster.length === 0) return;
+
+      const total = roster.length;
+      if (type === 'circle') {
+        const rx = 38; // x radius %
+        const ry = 35; // y radius %
+        const cx = 50; // center x %
+        const cy = 50; // center y %
+
+        roster.forEach((s, idx) => {
+          const angle = (idx / total) * 2 * Math.PI - Math.PI / 2;
+          const x = cx + rx * Math.cos(angle);
+          const y = cy + ry * Math.sin(angle);
+          seatingPositions[s.id] = { x: Math.round(x), y: Math.round(y) };
+        });
+      } else if (type === 'grid') {
+        const cols = Math.ceil(Math.sqrt(total));
+        const rows = Math.ceil(total / cols);
+        roster.forEach((s, idx) => {
+          const r = Math.floor(idx / cols);
+          const c = idx % cols;
+          const x = 15 + (c / (cols > 1 ? cols - 1 : 1)) * 70;
+          const y = 15 + (r / (rows > 1 ? rows - 1 : 1)) * 70;
+          seatingPositions[s.id] = { x: Math.round(x), y: Math.round(y) };
+        });
+      }
+      renderSeatingChart();
+    }
+
+    function renderSeatingChart() {
+      const container = document.getElementById('seating-nodes-layer');
+      container.innerHTML = '';
+
+      roster.forEach(s => {
+        const pos = seatingPositions[s.id] || { x: 50, y: 50 };
+        const node = document.createElement('div');
+        node.className = "absolute -translate-x-1/2 -translate-y-1/2 cursor-move flex flex-col items-center group select-none";
+        node.style.left = `${pos.x}%`;
+        node.style.top = `${pos.y}%`;
+        node.setAttribute('data-id', s.id);
+
+        node.innerHTML = `
+          <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform">
+            ${getInitials(s.name)}
+          </div>
+          <span class="mt-1 text-xs font-semibold text-slate-200 bg-slate-900/90 px-2 py-0.5 rounded shadow text-center whitespace-nowrap">
+            ${escapeHtml(s.name)}
+          </span>
+        `;
+
+        enableDragNode(node, s.id);
+        container.appendChild(node);
+      });
+    }
+
+    function enableDragNode(elmnt, studentId) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      elmnt.onmousedown = dragMouseDown;
+
+      function dragMouseDown(e) {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        const parent = document.getElementById('seating-canvas-container');
+        const rect = parent.getBoundingClientRect();
+
+        let newX = ((elmnt.offsetLeft - pos1) / rect.width) * 100;
+        let newY = ((elmnt.offsetTop - pos2) / rect.height) * 100;
+
+        // Boundaries
+        newX = Math.max(5, Math.min(95, newX));
+        newY = Math.max(5, Math.min(95, newY));
+
+        elmnt.style.left = newX + "%";
+        elmnt.style.top = newY + "%";
+
+        seatingPositions[studentId] = { x: newX, y: newY };
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    function getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+
+    // ==========================================
+    // TAB 3: LIVE SESSION & FLOW MAPPING
+    // ==========================================
+    function renderLiveMap() {
+      const container = document.getElementById('live-nodes-layer');
+      container.innerHTML = '';
+
+      // Populate Target Dropdown Select
+      const targetSelect = document.getElementById('target-speaker-select');
+      targetSelect.innerHTML = `<option value="">-- Open Discussion / Whole Group --</option>`;
+
+      roster.forEach(s => {
+        const pos = seatingPositions[s.id] || { x: 50, y: 50 };
+        const isActive = activeStudentId === s.id;
+
+        // Add to target select options
+        targetSelect.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)}</option>`;
+
+        const turnCount = discussionEvents.filter(e => e.speakerId === s.id).length;
+
+        const node = document.createElement('div');
+        node.className = `absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer flex flex-col items-center select-none group transition-all`;
+        node.style.left = `${pos.x}%`;
+        node.style.top = `${pos.y}%`;
+        node.onclick = () => handleSelectSpeaker(s.id);
+
+        node.innerHTML = `
+          <div class="relative">
+            <div class="w-11 h-11 rounded-full ${isActive ? 'bg-emerald-500 ring-4 ring-emerald-300 scale-110' : 'bg-slate-800 hover:bg-indigo-600'} border-2 border-slate-700 flex items-center justify-center text-white font-bold text-xs transition-all shadow-lg">
+              ${getInitials(s.name)}
+            </div>
+            ${turnCount > 0 ? `<span class="absolute -top-1 -right-1 bg-indigo-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border border-slate-900">${turnCount}</span>` : ''}
+          </div>
+          <span class="mt-1 text-[11px] font-medium text-slate-200 bg-slate-900/90 px-2 py-0.5 rounded shadow text-center whitespace-nowrap">
+            ${escapeHtml(s.name)}
+          </span>
+        `;
+
+        container.appendChild(node);
+      });
+
+      renderFlowVectors();
+    }
+
+    function handleSelectSpeaker(studentId) {
+      if (activeStudentId === studentId) return;
+
+      // Complete previous speaker turn if running
+      if (activeStudentId !== null) {
+        completeTurn(false); // auto stop previous without resetting active
+      }
+
+      previousSpeakerId = activeStudentId;
+      activeStudentId = studentId;
+
+      const student = roster.find(s => s.id === studentId);
+      document.getElementById('current-speaker-display').innerText = student.name;
+      document.getElementById('current-speaker-tags').innerText = student.tags.join(' • ');
+
+      // Target selection clear
+      document.getElementById('target-speaker-select').value = '';
+
+      // Enable turn buttons
+      document.getElementById('btn-end-turn').disabled = false;
+
+      // Start Live Timer
+      startLiveTimer();
+
+      renderLiveMap();
+    }
+
+    function startLiveTimer() {
+      clearInterval(timerInterval);
+      turnElapsedSeconds = 0;
+      updateTimerDisplay();
+
+      document.getElementById('timer-status').innerText = 'Live Recording';
+      document.getElementById('timer-status').className = 'text-[10px] uppercase font-bold text-emerald-500 animate-pulse';
+
+      timerInterval = setInterval(() => {
+        turnElapsedSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(turnElapsedSeconds / 60).toString().padStart(2, '0');
+      const secs = (turnElapsedSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('live-timer').innerText = `${mins}:${secs}`;
+    }
+
+    function setContributionTag(tagName) {
+      currentTag = tagName;
+      document.querySelectorAll('.tag-btn').forEach(btn => {
+        if (btn.innerText.includes(tagName)) {
+          btn.classList.add('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200');
+        } else {
+          btn.classList.remove('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200');
+        }
+      });
+    }
+
+    function completeTurn(resetActiveState = true) {
+      if (!activeStudentId) return;
+
+      clearInterval(timerInterval);
+
+      const speaker = roster.find(s => s.id === activeStudentId);
+      const targetId = document.getElementById('target-speaker-select').value;
+      const targetStudent = roster.find(s => s.id === targetId);
+
+      const event = {
+        id: Date.now(),
+        turnOrder: discussionEvents.length + 1,
+        speakerId: speaker.id,
+        speakerName: speaker.name,
+        speakerTags: [...speaker.tags],
+        previousSpeakerId: previousSpeakerId,
+        targetSpeakerId: targetId || null,
+        targetSpeakerName: targetStudent ? targetStudent.name : 'Group',
+        durationSeconds: turnElapsedSeconds,
+        tag: currentTag,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      };
+
+      discussionEvents.push(event);
+
+      // Reset Tag Selection
+      currentTag = 'General Contribution';
+      document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200'));
+
+      // Update feed log
+      renderFeedLog();
+
+      if (resetActiveState) {
+        previousSpeakerId = activeStudentId;
+        activeStudentId = null;
+        document.getElementById('current-speaker-display').innerText = 'Select a Student';
+        document.getElementById('current-speaker-tags').innerText = 'Click any node on the map to start turn';
+        document.getElementById('live-timer').innerText = '00:00';
+        document.getElementById('timer-status').innerText = 'Paused';
+        document.getElementById('timer-status').className = 'text-[10px] uppercase font-bold text-slate-400';
+        document.getElementById('btn-end-turn').disabled = true;
+      }
+
+      renderLiveMap();
+    }
+
+    function renderFeedLog() {
+      const feedContainer = document.getElementById('live-feed-log');
+      document.getElementById('turn-counter-badge').innerText = `${discussionEvents.length} Turns`;
+
+      if (discussionEvents.length === 0) {
+        feedContainer.innerHTML = `<p class="text-slate-400 italic text-center py-4">No speech turns recorded yet.</p>`;
+        return;
+      }
+
+      feedContainer.innerHTML = [...discussionEvents].reverse().map(e => `
+        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800">#${e.turnOrder} ${escapeHtml(e.speakerName)}</span>
+            <span class="font-mono font-semibold text-emerald-600 text-[11px]">${e.durationSeconds}s</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span>Tag: <strong class="text-indigo-600">${escapeHtml(e.tag)}</strong></span>
+            <span>${e.targetSpeakerId ? 'To: ' + escapeHtml(e.targetSpeakerName) : 'Whole Class'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFlowVectors() {
+      const svg = document.getElementById('svg-flow-layer');
+      // Clear previous lines
+      svg.querySelectorAll('line').forEach(l => l.remove());
+
+      if (discussionEvents.length === 0) return;
+
+      const container = document.getElementById('live-map-container');
+      const rect = container.getBoundingClientRect();
+
+      discussionEvents.forEach((ev, idx) => {
+        let fromId = ev.previousSpeakerId;
+        let toId = ev.speakerId;
+
+        // If explicitly directed to a target
+        if (ev.targetSpeakerId) {
+          fromId = ev.speakerId;
+          toId = ev.targetSpeakerId;
+        }
+
+        if (!fromId || !toId || fromId === toId) return;
+
+        const posFrom = seatingPositions[fromId];
+        const posTo = seatingPositions[toId];
+
+        if (!posFrom || !posTo) return;
+
+        const x1 = (posFrom.x / 100) * rect.width;
+        const y1 = (posFrom.y / 100) * rect.height;
+        const x2 = (posTo.x / 100) * rect.width;
+        const y2 = (posTo.y / 100) * rect.height;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+
+        const isLatest = idx === discussionEvents.length - 1;
+        line.setAttribute('stroke', isLatest ? '#34d399' : '#818cf8');
+        line.setAttribute('stroke-width', isLatest ? '3' : '1.5');
+        line.setAttribute('stroke-opacity', isLatest ? '1' : '0.4');
+        line.setAttribute('marker-end', isLatest ? 'url(#arrow-last)' : 'url(#arrow)');
+
+        svg.appendChild(line);
+      });
+    }
+
+    function clearFlowVectors() {
+      discussionEvents = [];
+      renderLiveMap();
+      renderFeedLog();
+    }
+
+    function endDiscussionSession() {
+      if (confirm("End current discussion session and open Analytics?")) {
+        if (activeStudentId) completeTurn();
+        switchTab('analytics');
+      }
+    }
+
+
+    // ==========================================
+    // TAB 4: ANALYTICS & VISUAL CHARTS
+    // ==========================================
+    function renderAnalyticsDashboard() {
+      // Calculate Overall Metrics
+      const totalSeconds = discussionEvents.reduce((acc, e) => acc + e.durationSeconds, 0);
+      const totalTurns = discussionEvents.length;
+      const uniqueSpeakers = new Set(discussionEvents.map(e => e.speakerId)).size;
+      const partRate = roster.length ? Math.round((uniqueSpeakers / roster.length) * 100) : 0;
+      const avgTurn = totalTurns ? Math.round(totalSeconds / totalTurns) : 0;
+
+      document.getElementById('stat-total-time').innerText = `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+      document.getElementById('stat-total-turns').innerText = totalTurns;
+      document.getElementById('stat-part-rate').innerText = `${partRate}%`;
+      document.getElementById('stat-avg-turn').innerText = `${avgTurn}s`;
+
+      renderAnalyticsCharts();
+      renderAnalyticsTable();
+      renderInteractionMatrix();
+    }
+
+    function renderAnalyticsCharts() {
+      // Destroy previous chart instances
+      if (chartIdentityRef) chartIdentityRef.destroy();
+      if (chartStudentsRef) chartStudentsRef.destroy();
+      if (chartCategoriesRef) chartCategoriesRef.destroy();
+
+      // --- 1. IDENTITY METRICS CHART ---
+      const metricType = document.getElementById('identity-metric-select').value;
+      const identityGroups = {};
+
+      // Aggregate tags across roster
+      roster.forEach(student => {
+        student.tags.forEach(tag => {
+          if (!identityGroups[tag]) {
+            identityGroups[tag] = { studentCount: 0, totalTime: 0, totalTurns: 0 };
+          }
+          identityGroups[tag].studentCount++;
+        });
+      });
+
+      discussionEvents.forEach(e => {
+        e.speakerTags.forEach(tag => {
+          if (identityGroups[tag]) {
+            identityGroups[tag].totalTime += e.durationSeconds;
+            identityGroups[tag].totalTurns++;
+          }
+        });
+      });
+
+      const identityLabels = Object.keys(identityGroups);
+      const identityValues = identityLabels.map(tag => {
+        const g = identityGroups[tag];
+        if (metricType === 'time') return g.studentCount ? Math.round(g.totalTime / g.studentCount) : 0;
+        if (metricType === 'turns') return g.studentCount ? (g.totalTurns / g.studentCount).toFixed(1) : 0;
+        return g.totalTime;
+      });
+
+      const ctx1 = document.getElementById('chart-identity').getContext('2d');
+      chartIdentityRef = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: identityLabels,
+          datasets: [{
+            label: metricType === 'turns' ? 'Avg Turns / Student' : 'Seconds Spoken',
+            data: identityValues,
+            backgroundColor: 'rgba(99, 102, 241, 0.85)',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // --- 2. INDIVIDUAL STUDENT SPEAKING TIME CHART ---
+      const studentNames = roster.map(s => s.name);
+      const studentTimes = roster.map(s => {
+        return discussionEvents.filter(e => e.speakerId === s.id).reduce((acc, e) => acc + e.durationSeconds, 0);
+      });
+
+      const ctx2 = document.getElementById('chart-students').getContext('2d');
+      chartStudentsRef = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: studentNames,
+          datasets: [{
+            label: 'Speaking Time (seconds)',
+            data: studentTimes,
+            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // --- 3. CONTRIBUTION CATEGORIES PIE CHART ---
+      const categories = ['Question', 'Text/Info Reference', 'Encouraging Others', 'Follow-up Question', 'General Contribution'];
+      const categoryCounts = categories.map(cat => discussionEvents.filter(e => e.tag === cat).length);
+
+      const ctx3 = document.getElementById('chart-categories').getContext('2d');
+      chartCategoriesRef = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: categoryCounts,
+            backgroundColor: [
+              '#38bdf8', // sky
+              '#f59e0b', // amber
+              '#f43f5e', // rose
+              '#6366f1', // indigo
+              '#94a3b8'  // slate
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    function renderAnalyticsTable() {
+      const tbody = document.getElementById('analytics-table-body');
+      tbody.innerHTML = '';
+
+      roster.forEach(s => {
+        const events = discussionEvents.filter(e => e.speakerId === s.id);
+        const turnsCount = events.length;
+        const totalTime = events.reduce((acc, e) => acc + e.durationSeconds, 0);
+        const avgDuration = turnsCount ? Math.round(totalTime / turnsCount) : 0;
+
+        const tagCounts = {};
+        events.forEach(e => { tagCounts[e.tag] = (tagCounts[e.tag] || 0) + 1; });
+        const tagSummary = Object.entries(tagCounts).map(([k, v]) => `${k}: ${v}`).join(', ') || 'None';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-slate-800">${escapeHtml(s.name)}</td>
+          <td class="p-3 text-slate-500">${s.tags.map(t => `<span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] mr-1">${escapeHtml(t)}</span>`).join('')}</td>
+          <td class="p-3 font-bold text-indigo-600">${turnsCount}</td>
+          <td class="p-3">${Math.floor(totalTime / 60)}m ${totalTime % 60}s (${totalTime}s)</td>
+          <td class="p-3">${avgDuration}s</td>
+          <td class="p-3 text-slate-500 text-[11px]">${escapeHtml(tagSummary)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderInteractionMatrix() {
+      const container = document.getElementById('interaction-matrix-container');
+      if (roster.length === 0) {
+        container.innerHTML = `<p class="text-slate-400">No students available.</p>`;
+        return;
+      }
+
+      let html = `<table class="w-full border-collapse border border-slate-200 text-center">`;
+      html += `<tr class="bg-slate-100"><th class="p-2 border border-slate-200 text-left">From \\ To</th>`;
+      roster.forEach(s => {
+        html += `<th class="p-2 border border-slate-200 font-semibold">${getInitials(s.name)}</th>`;
+      });
+      html += `</tr>`;
+
+      roster.forEach(speaker => {
+        html += `<tr><td class="p-2 border border-slate-200 font-semibold text-left bg-slate-50">${escapeHtml(speaker.name)}</td>`;
+        roster.forEach(target => {
+          if (speaker.id === target.id) {
+            html += `<td class="p-2 border border-slate-200 bg-slate-100 text-slate-300">-</td>`;
+          } else {
+            const flowCount = discussionEvents.filter(e => 
+              (e.speakerId === speaker.id && e.targetSpeakerId === target.id) ||
+              (e.previousSpeakerId === speaker.id && e.speakerId === target.id)
+            ).length;
+
+            const bgClass = flowCount > 0 ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-400';
+            html += `<td class="p-2 border border-slate-200 ${bgClass}">${flowCount}</td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+
+      html += `</table>`;
+      container.innerHTML = html;
+    }
+
+    // ==========================================
+    // EXPORT DATA (CSV)
+    // ==========================================
+    function exportCSV() {
+      if (discussionEvents.length === 0) {
+        alert("No discussion data available to export.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,Turn Order,Speaker Name,Speaker Identity Tags,Duration (Seconds),Contribution Type,Directed Target,Timestamp\n";
+
+      discussionEvents.forEach(e => {
+        const tagsStr = e.speakerTags.join(';');
+        csvContent += `${e.turnOrder},"${e.speakerName}","${tagsStr}",${e.durationSeconds},"${e.tag}","${e.targetSpeakerName}","${e.timestamp}"\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `equity_discussion_log_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
