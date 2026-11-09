@@ -1,0 +1,20 @@
+---
+layout: default
+---
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Repository Index</title>
+</head>
+<body>
+    <h1>My HTML Files</h1>
+    <ul>
+      {% for file in site.static_files %}
+        {% if file.extname == ".html" and file.name != "index.html" %}
+          <li><a href="{{ file.path | relative_url }}">{{ file.name }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+</body>
+</html>
