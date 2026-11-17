@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6th Grade Science: Skeletal System </title>
+    <title>6th Grade Science: Skeletal System Assessment</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Fredoka for friendly educational feel -->
@@ -523,13 +523,9 @@
                           class="w-full p-3 text-sm bg-white border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-3"></textarea>
 
                 <div class="flex flex-col sm:flex-row gap-2.5">
-                    <button onclick="copyExitTicket()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
+                    <button onclick="copyExitTicket()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-clipboard-check"></i> Copy for Google Classroom
                     </button>
-                    <a href="https://docs.google.com/forms" target="_blank" rel="noopener noreferrer" onclick="copyExitTicket(true)"
-                       class="flex-1 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm text-center">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Copy & Open Google Form
-                    </a>
                 </div>
                 <p id="copy-confirmation" class="text-xs font-semibold text-emerald-700 mt-2 hidden text-center">
                     <i class="fa-solid fa-circle-check mr-1"></i> Answer & score copied to clipboard! Ready to paste.
@@ -1147,9 +1143,9 @@
         /**
          * Copies Exit Ticket reflection + score summary to clipboard using execCommand fallback
          */
-        function copyExitTicket(isFormRedirect = false) {
+        function copyExitTicket() {
             const responseText = document.getElementById('exit-ticket-input').value.trim();
-            if (!responseText && !isFormRedirect) {
+            if (!responseText) {
                 showToast('Please type your reflection answer first!', 'fa-circle-exclamation', 'text-amber-400');
                 document.getElementById('exit-ticket-input').focus();
                 return;
@@ -1158,7 +1154,7 @@
             const formattedSubmission =
                 `6th Grade Science - Skeletal System Lab\n` +
                 `Score: ${solvedIds.size}/${SKELETON_DATA.length} (100% Mastery)\n` +
-                `Exit Ticket Reflection:\n${responseText || '[Ready to type reflection in Google Form]'}`;
+                `Exit Ticket Reflection:\n${responseText}`;
 
             copyTextToClipboard(formattedSubmission);
             document.getElementById('copy-confirmation').classList.remove('hidden');
