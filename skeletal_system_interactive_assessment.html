@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th Grade Science: Skeletal System Assessment</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Fredoka for friendly educational feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1e293b;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Custom scrollbar for word bank */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Drag & Drop animations */
+        .bone-chip {
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .bone-chip:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .bone-chip.selected-chip {
+            ring: 3px;
+            ring-color: #3b82f6;
+            background-color: #dbeafe;
+            border-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .drop-zone {
+            transition: all 0.2s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: #dbeafe !important;
+            border-color: #2563eb !important;
+            transform: translate(-50%, -50%) scale(1.12) !important;
+            z-index: 40;
+        }
+        .drop-zone.correct {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+            color: #15803d !important;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+        }
+        .drop-zone.incorrect {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+            background-color: #fee2e2 !important;
+            border-color: #dc2626 !important;
+            color: #b91c1c !important;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate(-51%, -50%); }
+            20%, 80% { transform: translate(-49%, -50%); }
+            30%, 50%, 70% { transform: translate(-52%, -50%); }
+            40%, 60% { transform: translate(-48%, -50%); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+        }
+        .highlight-target {
+            animation: pulseGlow 1.5s infinite;
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Header & Scoreboard -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md">
+                    <i class="fa-solid fa-bone text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Skeletal System Lab</h1>
+                    <p class="text-xs sm:text-sm text-slate-500">6th Grade Anatomy Interactive Practice</p>
+                </div>
+            </div>
+
+            <!-- Progress & Score Pill -->
+            <div class="flex items-center gap-3 sm:gap-5 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200">
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase tracking-wider font-bold text-slate-400">Identified</span>
+                    <span id="score-display" class="text-lg sm:text-xl font-bold text-indigo-600">0 / 32</span>
+                </div>
+                <div class="h-8 w-px bg-slate-200"></div>
+                <div class="w-24 sm:w-36">
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>Mastery</span>
+                        <span id="percent-display">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button onclick="resetActivity()" title="Reset Activity" class="ml-1 text-slate-400 hover:text-rose-600 transition-colors p-2 rounded-lg hover:bg-rose-50">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Workspace -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left / Center Column: Interactive Skeleton Canvas (7 cols on desktop) -->
+        <div class="lg:col-span-7 bg-white rounded-3xl shadow-md border border-slate-200 p-3 sm:p-5 flex flex-col items-center">
+            <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100">
+                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                    <i class="fa-solid fa-hand-pointer mr-1"></i> Drag & Drop or Tap Bone + Target
+                </span>
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <span class="inline-block w-3 h-3 rounded-full bg-emerald-500"></span> Correct
+                    <span class="inline-block w-3 h-3 rounded-full bg-rose-500 ml-2"></span> Try Again
+                </div>
+            </div>
+
+            <!-- Scrollable wrapper on very small mobile screens so labels never squish -->
+            <div class="w-full overflow-x-auto pb-2 flex justify-center">
+                <!-- Fixed Aspect Ratio Diagram Container matching Skeleton.png proportions & 32 target callouts -->
+                <div id="diagram-container" class="relative w-[680px] h-[940px] bg-white rounded-2xl border-2 border-slate-200 shadow-inner select-none flex-shrink-0">
+
+                    <!-- Title Header -->
+                    <div class="absolute top-3 left-0 right-0 text-center">
+                        <span class="font-display text-xl tracking-widest text-slate-800 border-b-2 border-slate-800 px-4 pb-0.5 uppercase">Skeletal System</span>
+                    </div>
+
+                    <!-- High-Fidelity Vector Recreation of Skeleton.png + Color-Coordinated Pointer Lines SVG -->
+                    <svg viewBox="0 0 680 940" class="w-full h-full pointer-events-none">
+                        <defs>
+                            <filter id="cleanShadow" x="-10%" y="-10%" width="120%" height="120%">
+                                <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0f172a" flood-opacity="0.08"/>
+                            </filter>
+                        </defs>
+
+                        <!-- ==================== ANATOMICAL LINE-ART SKELETON (BASED ON SKELETON.PNG) ==================== -->
+                        <g stroke="#18181b" stroke-width="1.65" fill="#ffffff" stroke-linecap="round" stroke-linejoin="round" filter="url(#cleanShadow)">
+
+                            <!-- 1. SKULL & MANDIBLE (Centered at x=340, y=56..165) -->
+                            <!-- Cranial Vault (Frontal, Parietal, Temporal) -->
+                            <path d="M 311,105 C 306,72 320,54 340,54 C 360,54 374,72 369,105 C 372,113 370,122 365,127 L 362,135 L 318,135 L 315,127 C 310,122 308,113 311,105 Z"/>
+                            <!-- Temporal & Cheekbone (Zygomatic) Contour Lines -->
+                            <path d="M 315,86 C 312,96 314,104 318,108" fill="none" stroke-width="1.1" stroke="#3f3f46"/>
+                            <path d="M 365,86 C 368,96 366,104 362,108" fill="none" stroke-width="1.1" stroke="#3f3f46"/>
+                            <path d="M 313,118 Q 320,125 326,127" fill="none" stroke-width="1.2"/>
+                            <path d="M 367,118 Q 360,125 354,127" fill="none" stroke-width="1.2"/>
+                            <!-- Eye Orbits -->
+                            <path d="M 319,108 C 319,101 334,101 335,109 C 335,117 321,118 319,108 Z" fill="#18181b"/>
+                            <path d="M 361,108 C 361,101 346,101 345,109 C 345,117 359,118 361,108 Z" fill="#18181b"/>
+                            <!-- Piriform Nasal Aperture -->
+                            <path d="M 340,113 L 335,126 Q 340,128 345,126 Z" fill="#18181b"/>
+                            <!-- Maxilla (Upper Jaw) -->
+                            <path d="M 323,131 Q 340,134 357,131 L 355,141 Q 340,143 325,141 Z"/>
+                            <!-- Mandible (Lower Jaw with Ramus & Chin) -->
+                            <path d="M 317,127 L 320,152 C 325,161 334,164 340,164 C 346,164 355,161 360,152 L 363,127 L 358,133 L 355,149 Q 340,154 325,149 L 322,133 Z"/>
+                            <!-- Teeth Rows -->
+                            <g fill="#ffffff" stroke="#18181b" stroke-width="1">
+                                <rect x="326" y="140" width="4.5" height="5" rx="0.8"/>
+                                <rect x="330.5" y="140.5" width="4.5" height="5.5" rx="0.8"/>
+                                <rect x="335" y="141" width="5" height="5.5" rx="0.8"/>
+                                <rect x="340" y="141" width="5" height="5.5" rx="0.8"/>
+                                <rect x="345" y="140.5" width="4.5" height="5.5" rx="0.8"/>
+                                <rect x="349.5" y="140" width="4.5" height="5" rx="0.8"/>
+                                <rect x="327" y="146" width="4.2" height="4.5" rx="0.8"/>
+                                <rect x="331.2" y="146.5" width="4.3" height="5" rx="0.8"/>
+                                <rect x="335.5" y="147" width="4.5" height="5" rx="0.8"/>
+                                <rect x="340" y="147" width="4.5" height="5" rx="0.8"/>
+                                <rect x="344.5" y="146.5" width="4.3" height="5" rx="0.8"/>
+                                <rect x="348.8" y="146" width="4.2" height="4.5" rx="0.8"/>
+                            </g>
+
+                            <!-- 2. CERVICAL VERTEBRAE (C1–C7, y=165..204) -->
+                            <g>
+                                <path d="M 328,166 L 352,166 L 349,171 L 331,171 Z"/>
+                                <path d="M 327,172 L 353,172 L 350,177 L 330,177 Z"/>
+                                <path d="M 326,178 L 354,178 L 351,184 L 329,184 Z"/>
+                                <path d="M 325,185 L 355,185 L 352,191 L 328,191 Z"/>
+                                <path d="M 325,192 L 355,192 L 352,198 L 328,198 Z"/>
+                                <path d="M 324,199 L 356,199 L 353,205 L 327,205 Z"/>
+                            </g>
+
+                            <!-- 3. SCAPULAE (Shoulder Blades visible behind upper ribs) -->
+                            <path d="M 294,209 L 258,214 L 263,234 L 281,280 L 302,256 Z" fill="#f4f4f5"/>
+                            <path d="M 386,209 L 422,214 L 417,234 L 399,280 L 378,256 Z" fill="#f4f4f5"/>
+
+                            <!-- 4. THORACIC & LUMBAR VERTEBRAE (y=206..384) -->
+                            <g>
+                                <!-- Thoracic -->
+                                <rect x="328" y="206" width="24" height="8" rx="2"/>
+                                <rect x="328" y="216" width="24" height="8" rx="2"/>
+                                <rect x="328" y="226" width="24" height="8" rx="2"/>
+                                <rect x="327" y="236" width="26" height="8" rx="2"/>
+                                <rect x="327" y="246" width="26" height="8" rx="2"/>
+                                <rect x="327" y="256" width="26" height="9" rx="2"/>
+                                <rect x="326" y="267" width="28" height="9" rx="2"/>
+                                <rect x="326" y="278" width="28" height="9" rx="2"/>
+                                <rect x="326" y="289" width="28" height="9" rx="2"/>
+                                <rect x="325" y="300" width="30" height="10" rx="2"/>
+                                <!-- Lumbar L1-L5 (with prominent lateral transverse processes as in Skeleton.png) -->
+                                <path d="M 320,313 L 360,313 L 356,324 L 324,324 Z"/>
+                                <path d="M 319,327 L 361,327 L 357,338 L 323,338 Z"/>
+                                <path d="M 318,341 L 362,341 L 358,352 L 322,352 Z"/>
+                                <path d="M 318,355 L 362,355 L 358,366 L 322,366 Z"/>
+                                <path d="M 319,369 L 361,369 L 357,380 L 323,380 Z"/>
+                            </g>
+
+                            <!-- 5. RIB CAGE (Paired curved ribs + central sternum) -->
+                            <g>
+                                <!-- Viewer's Left Ribs -->
+                                <path d="M 332,211 C 292,206 276,220 288,229 C 299,235 324,228 335,227"/>
+                                <path d="M 332,223 C 282,221 268,238 282,248 C 295,256 324,247 335,245"/>
+                                <path d="M 332,237 C 276,236 264,257 279,268 C 293,277 324,266 335,263"/>
+                                <path d="M 332,251 C 274,253 264,276 281,287 C 297,296 325,283 335,279"/>
+                                <path d="M 332,266 C 278,270 270,294 289,304 C 304,311 325,298 335,294"/>
+                                <path d="M 331,281 C 284,288 278,311 297,318 C 310,322 323,312 332,307"/>
+                                <path d="M 329,296 C 293,304 291,324 306,329"/>
+                                <!-- Floating Ribs Left -->
+                                <path d="M 325,310 C 303,315 298,328 308,332"/>
+                                <path d="M 324,322 C 308,326 304,336 312,339"/>
+
+                                <!-- Viewer's Right Ribs -->
+                                <path d="M 348,211 C 388,206 404,220 392,229 C 381,235 356,228 345,227"/>
+                                <path d="M 348,223 C 398,221 412,238 398,248 C 385,256 356,247 345,245"/>
+                                <path d="M 348,237 C 404,236 416,257 401,268 C 387,277 356,266 345,263"/>
+                                <path d="M 348,251 C 406,253 416,276 399,287 C 383,296 355,283 345,279"/>
+                                <path d="M 348,266 C 402,270 410,294 391,304 C 376,311 355,298 345,294"/>
+                                <path d="M 349,281 C 396,288 402,311 383,318 C 370,322 357,312 348,307"/>
+                                <path d="M 351,296 C 387,304 389,324 374,329"/>
+                                <!-- Floating Ribs Right -->
+                                <path d="M 355,310 C 377,315 382,328 372,332"/>
+                                <path d="M 356,322 C 372,326 376,336 368,339"/>
+                            </g>
+
+                            <!-- 6. STERNUM (Manubrium, Body & Xiphoid Process) -->
+                            <path d="M 332,208 L 348,208 L 346,223 L 334,223 Z"/>
+                            <path d="M 335,224 L 345,224 L 346,282 L 334,282 Z"/>
+                            <path d="M 336,283 L 344,283 L 340,300 Z"/>
+
+                            <!-- 7. CLAVICLES (S-Curved Collarbones) -->
+                            <path d="M 333,207 C 310,197 286,201 259,209 C 257,212 261,216 266,214 C 290,206 311,205 333,212 Z"/>
+                            <path d="M 347,207 C 370,197 394,201 421,209 C 423,212 419,216 414,214 C 390,206 369,205 347,212 Z"/>
+
+                            <!-- 8. PELVIC GIRDLE (Ilium, Ischium, Pubis, Sacrum, Coccyx) -->
+                            <!-- Sacrum -->
+                            <path d="M 319,381 L 361,381 L 352,424 L 340,432 L 328,424 Z"/>
+                            <circle cx="333" cy="392" r="1.6" fill="#18181b"/>
+                            <circle cx="347" cy="392" r="1.6" fill="#18181b"/>
+                            <circle cx="334" cy="404" r="1.6" fill="#18181b"/>
+                            <circle cx="346" cy="404" r="1.6" fill="#18181b"/>
+                            <circle cx="336" cy="415" r="1.4" fill="#18181b"/>
+                            <circle cx="344" cy="415" r="1.4" fill="#18181b"/>
+                            <!-- Coccyx -->
+                            <path d="M 335,432 L 345,432 L 342,444 L 338,444 Z"/>
+
+                            <!-- Left Hip Bone (Ilium, Ischium, Pubis) -->
+                            <path d="M 319,383 C 290,362 270,382 277,414 C 281,432 292,443 298,461 C 305,474 326,472 335,456 L 340,447 L 328,424 Z"/>
+                            <path d="M 287,390 C 283,403 289,419 303,425" fill="none" stroke="#52525b" stroke-width="1.1"/>
+                            <ellipse cx="314" cy="449" rx="8" ry="10" fill="#ffffff"/>
+
+                            <!-- Right Hip Bone -->
+                            <path d="M 361,383 C 390,362 410,382 403,414 C 399,432 388,443 382,461 C 375,474 354,472 345,456 L 340,447 L 352,424 Z"/>
+                            <path d="M 393,390 C 397,403 391,419 377,425" fill="none" stroke="#52525b" stroke-width="1.1"/>
+                            <ellipse cx="366" cy="449" rx="8" ry="10" fill="#ffffff"/>
+                            <!-- Pubic Symphysis -->
+                            <rect x="338.5" y="443" width="3" height="15" rx="1" fill="#e4e4e7"/>
+
+                            <!-- 9. UPPER LIMBS (Splayed anatomical pose matching Skeleton.png) -->
+                            <!-- VIEWER'S LEFT ARM -->
+                            <!-- Humerus -->
+                            <path d="M 257,215 C 246,215 242,229 249,237 L 234,344 C 228,351 231,362 241,362 C 251,362 255,352 250,344 L 264,237 C 270,228 267,215 257,215 Z"/>
+                            <!-- Radius (outer thumb side) & Ulna (inner pinky side) -->
+                            <path d="M 233,363 C 229,367 231,373 234,376 L 201,472 C 199,477 206,480 210,476 L 241,375 L 241,363 Z"/>
+                            <path d="M 245,363 L 216,475 C 216,479 222,480 224,475 L 253,373 C 255,367 251,362 245,363 Z"/>
+                            <!-- Carpals -->
+                            <g>
+                                <circle cx="204" cy="481" r="3.6"/><circle cx="211" cy="482" r="3.6"/><circle cx="219" cy="483" r="3.6"/>
+                                <circle cx="201" cy="487" r="3.6"/><circle cx="209" cy="488" r="3.6"/><circle cx="217" cy="489" r="3.6"/>
+                            </g>
+                            <!-- Metacarpals & Splayed Phalanges (Left Hand) -->
+                            <g stroke-width="2">
+                                <!-- Thumb (splayed outward) -->
+                                <line x1="198" y1="487" x2="181" y2="495"/><line x1="179" y1="496" x2="167" y2="503"/>
+                                <!-- Index -->
+                                <line x1="201" y1="491" x2="188" y2="513"/><line x1="187" y1="515" x2="179" y2="528"/><line x1="178" y1="530" x2="172" y2="540"/>
+                                <!-- Middle -->
+                                <line x1="207" y1="492" x2="197" y2="517"/><line x1="196" y1="519" x2="190" y2="534"/><line x1="189" y1="536" x2="184" y2="547"/>
+                                <!-- Ring -->
+                                <line x1="212" y1="492" x2="206" y2="516"/><line x1="205" y1="518" x2="201" y2="532"/><line x1="200" y1="534" x2="197" y2="544"/>
+                                <!-- Pinky -->
+                                <line x1="218" y1="491" x2="215" y2="511"/><line x1="214" y1="513" x2="212" y2="524"/><line x1="211" y1="526" x2="210" y2="535"/>
+                            </g>
+
+                            <!-- VIEWER'S RIGHT ARM -->
+                            <!-- Humerus -->
+                            <path d="M 423,215 C 434,215 438,229 431,237 L 446,344 C 452,351 449,362 439,362 C 429,362 425,352 430,344 L 416,237 C 410,228 413,215 423,215 Z"/>
+                            <!-- Radius (outer thumb side) & Ulna (inner pinky side) -->
+                            <path d="M 447,363 C 451,367 449,373 446,376 L 479,472 C 481,477 474,480 470,476 L 439,375 L 439,363 Z"/>
+                            <path d="M 435,363 L 464,475 C 464,479 458,480 456,475 L 427,373 C 425,367 429,362 435,363 Z"/>
+                            <!-- Carpals -->
+                            <g>
+                                <circle cx="476" cy="481" r="3.6"/><circle cx="469" cy="482" r="3.6"/><circle cx="461" cy="483" r="3.6"/>
+                                <circle cx="479" cy="487" r="3.6"/><circle cx="471" cy="488" r="3.6"/><circle cx="463" cy="489" r="3.6"/>
+                            </g>
+                            <!-- Metacarpals & Splayed Phalanges (Right Hand) -->
+                            <g stroke-width="2">
+                                <!-- Thumb (splayed outward) -->
+                                <line x1="482" y1="487" x2="499" y2="495"/><line x1="501" y1="496" x2="513" y2="503"/>
+                                <!-- Index -->
+                                <line x1="479" y1="491" x2="492" y2="513"/><line x1="493" y1="515" x2="501" y2="528"/><line x1="502" y1="530" x2="508" y2="540"/>
+                                <!-- Middle -->
+                                <line x1="473" y1="492" x2="483" y2="517"/><line x1="484" y1="519" x2="490" y2="534"/><line x1="491" y1="536" x2="496" y2="547"/>
+                                <!-- Ring -->
+                                <line x1="468" y1="492" x2="474" y2="516"/><line x1="475" y1="518" x2="479" y2="532"/><line x1="480" y1="534" x2="483" y2="544"/>
+                                <!-- Pinky -->
+                                <line x1="462" y1="491" x2="465" y2="511"/><line x1="466" y1="513" x2="468" y2="524"/><line x1="469" y1="526" x2="470" y2="535"/>
+                            </g>
+
+                            <!-- 10. LOWER LIMBS (Femur, Patella, Tibia, Fibula, Tarsals, Metatarsals & Toes) -->
+                            <!-- VIEWER'S LEFT LEG -->
+                            <!-- Femur -->
+                            <path d="M 290,444 C 279,444 275,458 282,469 L 295,634 C 289,641 292,654 304,654 C 316,654 319,641 313,634 L 301,469 L 312,457 C 315,449 306,441 300,447 Z"/>
+                            <!-- Patella -->
+                            <path d="M 296,653 C 296,646 312,646 312,653 C 312,661 307,667 304,667 C 301,667 296,661 296,653 Z"/>
+                            <!-- Tibia -->
+                            <path d="M 293,668 C 298,671 310,671 315,668 L 313,836 C 315,840 311,843 307,840 L 300,840 L 298,682 Z"/>
+                            <!-- Fibula -->
+                            <path d="M 288,674 L 294,674 L 295,839 C 295,843 289,843 289,838 Z"/>
+                            <!-- Tarsals -->
+                            <g>
+                                <path d="M 290,841 L 314,841 L 316,854 L 286,854 Z"/>
+                                <path d="M 286,854 L 316,854 L 318,862 L 283,862 Z"/>
+                            </g>
+                            <!-- Metatarsals & Toes (Left Foot) -->
+                            <g stroke-width="2">
+                                <line x1="285" y1="862" x2="278" y2="878"/><line x1="277" y1="880" x2="275" y2="887"/>
+                                <line x1="292" y1="862" x2="287" y2="880"/><line x1="286" y1="882" x2="285" y2="889"/>
+                                <line x1="299" y1="862" x2="296" y2="880"/><line x1="295" y1="882" x2="294" y2="889"/>
+                                <line x1="306" y1="862" x2="305" y2="880"/><line x1="305" y1="882" x2="304" y2="889"/>
+                                <line x1="313" y1="862" x2="314" y2="879" stroke-width="2.6"/><line x1="314" y1="881" x2="315" y2="888" stroke-width="2.6"/>
+                            </g>
+
+                            <!-- VIEWER'S RIGHT LEG -->
+                            <!-- Femur -->
+                            <path d="M 390,444 C 401,444 405,458 398,469 L 385,634 C 391,641 388,654 376,654 C 364,654 361,641 367,634 L 379,469 L 368,457 C 365,449 374,441 380,447 Z"/>
+                            <!-- Patella -->
+                            <path d="M 368,653 C 368,646 384,646 384,653 C 384,661 379,667 376,667 C 373,667 368,661 368,653 Z"/>
+                            <!-- Tibia -->
+                            <path d="M 365,668 C 370,671 382,671 387,668 L 382,682 L 380,840 L 373,840 C 369,843 365,840 367,836 Z"/>
+                            <!-- Fibula -->
+                            <path d="M 386,674 L 392,674 L 391,838 C 391,843 385,843 385,839 Z"/>
+                            <!-- Tarsals -->
+                            <g>
+                                <path d="M 366,841 L 390,841 L 394,854 L 364,854 Z"/>
+                                <path d="M 364,854 L 394,854 L 397,862 L 362,862 Z"/>
+                            </g>
+                            <!-- Metatarsals & Toes (Right Foot) -->
+                            <g stroke-width="2">
+                                <line x1="367" y1="862" x2="366" y2="879" stroke-width="2.6"/><line x1="366" y1="881" x2="365" y2="888" stroke-width="2.6"/>
+                                <line x1="374" y1="862" x2="375" y2="880"/><line x1="375" y1="882" x2="376" y2="889"/>
+                                <line x1="381" y1="862" x2="384" y2="880"/><line x1="385" y1="882" x2="386" y2="889"/>
+                                <line x1="388" y1="862" x2="393" y2="880"/><line x1="394" y1="882" x2="395" y2="889"/>
+                                <line x1="395" y1="862" x2="402" y2="878"/><line x1="403" y1="880" x2="405" y2="887"/>
+                            </g>
+                        </g>
+
+                        <!-- ==================== COLOR-COORDINATED POINTER LINES & ENDPOINT DOTS ==================== -->
+                        <g id="pointer-lines-layer" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+                    </svg>
+
+                    <!-- Dynamic Drop Zones Layer (Populated by JS) -->
+                    <div id="drop-zones-layer" class="absolute inset-0"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Formative Feedback, Word Bank, Exit Ticket & Guided Learning (5 cols on desktop) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+
+            <!-- 1. Live Formative Feedback Box -->
+            <div id="feedback-card" class="bg-white rounded-3xl shadow-md border-2 border-indigo-100 p-5 transition-all duration-300">
+                <div class="flex items-start gap-3.5">
+                    <div id="feedback-icon" class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 text-lg">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <h2 id="feedback-title" class="text-base font-bold text-slate-800">Ready to Investigate!</h2>
+                        <p id="feedback-message" class="text-sm text-slate-600 mt-1 leading-relaxed">
+                            Drag any bone label from the bank below onto its matching target box on the skeleton. If you have a touchscreen, you can also <strong>tap a label</strong> and then <strong>tap a target box</strong>!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Bone Label Word Bank -->
+            <div class="bg-white rounded-3xl shadow-md border border-slate-200 p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-tags text-indigo-500"></i> Bone Word Bank
+                    </h2>
+                    <span id="remaining-count" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">32 remaining</span>
+                </div>
+
+                <!-- Search/Filter helper for quick finding -->
+                <div class="relative mb-3">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="word-filter" placeholder="Filter bone names..." oninput="filterWordBank(this.value)"
+                           class="w-full pl-8 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                </div>
+
+                <div id="word-bank" class="flex flex-wrap gap-2 max-h-[340px] overflow-y-auto p-1">
+                    <!-- Draggable chips injected via JS -->
+                </div>
+            </div>
+
+            <!-- 3. Unlockable Exit Ticket & Data Collection (Hidden until 100%) -->
+            <div id="exit-ticket-section" class="hidden bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl shadow-lg border-2 border-emerald-400 p-6 transition-all duration-500">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-sm">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">100% Mastery Unlocked!</span>
+                        <h2 class="text-xl font-bold text-slate-800">Science Exit Ticket</h2>
+                    </div>
+                </div>
+
+                <p class="text-sm text-slate-700 font-medium mb-2 bg-white/80 p-3 rounded-xl border border-emerald-200">
+                    <strong>Reflection Question:</strong> Pick two bones you labeled today (for example, the <em>ribs</em> and the <em>femur</em>). How does the <strong>shape and location</strong> of each bone help it do its specific job in your body?
+                </p>
+
+                <textarea id="exit-ticket-input" rows="4" placeholder="Write your 2–3 sentence scientific explanation here..."
+                          class="w-full p-3 text-sm bg-white border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-3"></textarea>
+
+                <div class="flex flex-col sm:flex-row gap-2.5">
+                    <button onclick="copyExitTicket()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-clipboard-check"></i> Copy for Google Classroom
+                    </button>
+                    <a href="https://docs.google.com/forms" target="_blank" rel="noopener noreferrer" onclick="copyExitTicket(true)"
+                       class="flex-1 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm text-center">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Copy & Open Google Form
+                    </a>
+                </div>
+                <p id="copy-confirmation" class="text-xs font-semibold text-emerald-700 mt-2 hidden text-center">
+                    <i class="fa-solid fa-circle-check mr-1"></i> Answer & score copied to clipboard! Ready to paste.
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Custom Notification Toast (Replaces any alert()) -->
+    <div id="toast-banner" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-sm font-medium border border-slate-700">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-text">Copied to clipboard!</span>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Distinct accessible color palette so no two neighboring boxes share the same color.
+         * Each target box and its matching SVG pointer line/dot share the exact same color theme.
+         */
+        const COLOR_THEMES = {
+            blue:   { stroke: "#2563eb", bg: "#eff6ff", border: "#3b82f6", text: "#1d4ed8" },
+            amber:  { stroke: "#d97706", bg: "#fffbeb", border: "#f59e0b", text: "#b45309" },
+            purple: { stroke: "#7c3aed", bg: "#f5f3ff", border: "#8b5cf6", text: "#6d28d9" },
+            teal:   { stroke: "#0d9488", bg: "#f0fdfa", border: "#14b8a6", text: "#0f766e" },
+            pink:   { stroke: "#db2777", bg: "#fdf2f8", border: "#ec4899", text: "#be185d" },
+            indigo: { stroke: "#4f46e5", bg: "#eef2ff", border: "#6366f1", text: "#4338ca" },
+            orange: { stroke: "#ea580c", bg: "#fff7ed", border: "#f97316", text: "#c2410c" },
+            cyan:   { stroke: "#0284c7", bg: "#f0f9ff", border: "#0ea5e9", text: "#0369a1" }
+        };
+
+        /**
+         * Complete dataset of all 32 bones from the teacher's reference diagram.
+         * Coordinates (x, y) align directly with the updated Skeleton.png vector geometry.
+         * Neighboring callouts are strictly assigned distinct color keys.
+         */
+        const SKELETON_DATA = [
+            // LEFT SIDE TARGETS (Top-to-Bottom: blue -> amber -> purple -> teal -> orange -> indigo -> pink -> cyan -> amber -> purple -> teal -> orange -> indigo)
+            {
+                id: "skull",
+                label: "Skull",
+                color: "blue",
+                x: 190, y: 106,
+                linePath: "M 298,58 L 290,58 L 290,158 L 298,158 M 290,106 L 247,106",
+                dot: { x: 290, y: 106 },
+                explanation: "The skull is the entire bony structure of the head that surrounds and protects your brain and sensory organs.",
+                hint: "Look at the big bracket on the upper left—it groups all the bones of the head together!"
+            },
+            {
+                id: "mandible",
+                label: "Mandible",
+                color: "amber",
+                x: 190, y: 142,
+                linePath: "M 320,150 L 247,142",
+                dot: { x: 320, y: 150 },
+                explanation: "The mandible is your lower jawbone and is the only freely movable bone of the skull, allowing you to chew and speak.",
+                hint: "This arrow points to the movable lower jawbone at the bottom of the face."
+            },
+            {
+                id: "maxilla",
+                label: "Maxilla",
+                color: "purple",
+                x: 190, y: 174,
+                linePath: "M 326,136 L 247,174",
+                dot: { x: 326, y: 136 },
+                explanation: "The maxilla forms your upper jaw, holding your top teeth and forming the floor of your eye sockets and nose.",
+                hint: "This arrow points right above the upper teeth—think of the fixed upper jawbone."
+            },
+            {
+                id: "sternum",
+                label: "Sternum",
+                color: "teal",
+                x: 190, y: 234,
+                linePath: "M 339,234 L 247,234",
+                dot: { x: 339, y: 234 },
+                explanation: "The sternum (breastbone) is a flat, necktie-shaped bone in the center of your chest that anchors your ribs.",
+                hint: "Look right in the middle of the chest where the front of the ribs meet."
+            },
+            {
+                id: "ribs",
+                label: "Ribs",
+                color: "orange",
+                x: 190, y: 266,
+                linePath: "M 278,266 L 247,266",
+                dot: { x: 278, y: 266 },
+                explanation: "Your curved ribs form a protective cage around vital organs like your heart and lungs while expanding when you breathe.",
+                hint: "These curved, cage-like bones wrap around the chest to shield the heart and lungs."
+            },
+            {
+                id: "thoracic",
+                label: "Thoracic vertebrae",
+                color: "indigo",
+                x: 180, y: 310,
+                linePath: "M 333,298 L 241,310",
+                dot: { x: 333, y: 298 },
+                explanation: "The thoracic vertebrae are the 12 middle spine bones in your upper back that connect directly to your ribs.",
+                hint: "Follow the arrow to the middle section of the backbone, right behind the rib cage."
+            },
+            {
+                id: "lumbar",
+                label: "Lumbar vertebrae",
+                color: "pink",
+                x: 180, y: 356,
+                linePath: "M 326,352 L 241,356",
+                dot: { x: 326, y: 352 },
+                explanation: "The lumbar vertebrae are the 5 largest, strongest spine bones in your lower back that support most of your upper body weight.",
+                hint: "These thick spine bones are located in the lower back, between the ribs and the hips."
+            },
+            {
+                id: "sacrum",
+                label: "Sacrum",
+                color: "cyan",
+                x: 190, y: 398,
+                linePath: "M 333,396 L 247,398",
+                dot: { x: 333, y: 396 },
+                explanation: "The sacrum is a triangular shield-shaped bone at the base of the spine that connects your backbone to your hip bones.",
+                hint: "Look for the wide, triangle-shaped bone wedged right between the two large hip blades."
+            },
+            {
+                id: "coccyx",
+                label: "Coccyx",
+                color: "amber",
+                x: 190, y: 434,
+                linePath: "M 339,437 L 247,434",
+                dot: { x: 339, y: 437 },
+                explanation: "The coccyx, commonly called the tailbone, is the very bottom tip of your vertebral column.",
+                hint: "This tiny bone sits at the very bottom tip of the spine, right below the triangular sacrum."
+            },
+            {
+                id: "pelvic_girdle",
+                label: "Pelvic girdle",
+                color: "purple",
+                x: 155, y: 476,
+                linePath: "M 279,420 L 212,476",
+                dot: { x: 279, y: 420 },
+                explanation: "The pelvic girdle is the basin-like ring of hip bones that supports your spine and protects lower abdominal organs.",
+                hint: "This arrow points to the large bowl-shaped hip structure that connects the trunk to the legs."
+            },
+            {
+                id: "ilium",
+                label: "Ilium",
+                color: "teal",
+                x: 135, y: 522,
+                linePath: "M 290,392 L 192,522",
+                dot: { x: 290, y: 392 },
+                explanation: "The ilium is the large, flared upper wing of the hip bone that you can feel when you put your hands on your hips.",
+                hint: "Follow the arrow up to the big, fan-shaped upper wing of the hip bone."
+            },
+            {
+                id: "ischium",
+                label: "Ischium",
+                color: "orange",
+                x: 165, y: 566,
+                linePath: "M 310,464 L 222,566",
+                dot: { x: 310, y: 464 },
+                explanation: "The ischium is the curved lower-back portion of the hip bone—it is literally the 'sit bone' that supports your weight when seated.",
+                hint: "Follow this long arrow to the lower-back loop of the hip bone that you sit on."
+            },
+            {
+                id: "pubis",
+                label: "Pubis",
+                color: "indigo",
+                x: 188, y: 608,
+                linePath: "M 335,453 L 245,608",
+                dot: { x: 335, y: 453 },
+                explanation: "The pubis is the front portion of the hip bone where the left and right sides of the pelvis meet.",
+                hint: "Follow this arrow to the front-center bottom part of the hip bone."
+            },
+
+            // RIGHT SIDE TARGETS (Top-to-Bottom: cyan -> pink -> amber -> purple -> teal -> orange -> indigo -> blue -> amber -> purple -> teal -> orange -> pink -> cyan -> indigo -> amber -> purple -> teal -> orange)
+            {
+                id: "frontal",
+                label: "Frontal bone",
+                color: "cyan",
+                x: 498, y: 68,
+                linePath: "M 348,76 L 441,68",
+                dot: { x: 348, y: 76 },
+                explanation: "The frontal bone forms your forehead and the upper part of your eye sockets.",
+                hint: "Look at the very front and top of the skull—right where your forehead is!"
+            },
+            {
+                id: "parietal",
+                label: "Parietal bone",
+                color: "pink",
+                x: 498, y: 98,
+                linePath: "M 366,86 L 441,98",
+                dot: { x: 366, y: 86 },
+                explanation: "The parietal bones form the upper sides and roof of your cranium, protecting the top of your brain.",
+                hint: "This arrow points to the large upper-side wall of the skull, behind the forehead."
+            },
+            {
+                id: "temporal",
+                label: "Temporal bone",
+                color: "amber",
+                x: 498, y: 128,
+                linePath: "M 368,108 L 441,128",
+                dot: { x: 368, y: 108 },
+                explanation: "The temporal bone sits on the lower side of the skull near your temples and ears, housing delicate hearing structures.",
+                hint: "Think about the side of your head right near your ears and temples."
+            },
+            {
+                id: "occipital",
+                label: "Occipital bone",
+                color: "purple",
+                x: 498, y: 158,
+                linePath: "M 362,124 L 441,158",
+                dot: { x: 362, y: 124 },
+                explanation: "The occipital bone forms the back and base of your skull, where your head balances on top of your spine.",
+                hint: "This arrow points to the lower back base of the skull, just above the neck."
+            },
+            {
+                id: "cervical",
+                label: "Cervical vertebrae",
+                color: "teal",
+                x: 508, y: 190,
+                linePath: "M 360,167 L 366,167 L 366,202 L 360,202 M 366,184 L 447,190",
+                dot: { x: 366, y: 184 },
+                explanation: "The 7 cervical vertebrae make up your neck, supporting your head and allowing you to nod and turn.",
+                hint: "Look at the bracket pointing to the 7 small spine bones in the neck."
+            },
+            {
+                id: "clavicle",
+                label: "Clavicle",
+                color: "orange",
+                x: 508, y: 222,
+                linePath: "M 398,204 L 451,222",
+                dot: { x: 398, y: 204 },
+                explanation: "The clavicle (collarbone) acts like a strut holding your shoulder out to the side so your arm can swing freely.",
+                hint: "This S-shaped collarbone stretches horizontally from the top of the chest to the shoulder."
+            },
+            {
+                id: "scapula",
+                label: "Scapula",
+                color: "indigo",
+                x: 508, y: 256,
+                linePath: "M 407,246 L 451,256",
+                dot: { x: 407, y: 246 },
+                explanation: "The scapula (shoulder blade) is a flat, triangular bone on your upper back that anchors shoulder and arm muscles.",
+                hint: "Look behind the upper ribs for the flat, triangle-shaped shoulder blade."
+            },
+            {
+                id: "humerus",
+                label: "Humerus",
+                color: "blue",
+                x: 520, y: 306,
+                linePath: "M 435,292 L 463,306",
+                dot: { x: 435, y: 292 },
+                explanation: "The humerus is the single long bone of your upper arm, stretching from your shoulder socket down to your elbow.",
+                hint: "This is the single long bone in the upper arm between the shoulder and elbow."
+            },
+            {
+                id: "radius",
+                label: "Radius",
+                color: "amber",
+                x: 545, y: 396,
+                linePath: "M 458,402 L 488,396",
+                dot: { x: 458, y: 402 },
+                explanation: "The radius is the forearm bone on the thumb side that rotates over the ulna when you turn your palm up or down.",
+                hint: "Look at the two forearm bones—this one is on the outer (thumb) side."
+            },
+            {
+                id: "ulna",
+                label: "Ulna",
+                color: "purple",
+                x: 545, y: 430,
+                linePath: "M 448,434 L 488,430",
+                dot: { x: 448, y: 434 },
+                explanation: "The ulna is the inner forearm bone (pinky side) that forms the sharp point of your elbow hinge.",
+                hint: "Look at the two forearm bones—this one is on the inner (pinky) side."
+            },
+            {
+                id: "carpals",
+                label: "Carpals",
+                color: "teal",
+                x: 562, y: 468,
+                linePath: "M 476,481 L 505,468",
+                dot: { x: 476, y: 481 },
+                explanation: "The carpals are a cluster of 8 small wrist bones that glide together so your hand can bend in many directions.",
+                hint: "This arrow points right to the cluster of tiny bones in the wrist."
+            },
+            {
+                id: "metacarpals",
+                label: "Metacarpals",
+                color: "orange",
+                x: 572, y: 504,
+                linePath: "M 484,502 L 515,504",
+                dot: { x: 484, y: 502 },
+                explanation: "The metacarpals are the 5 long bones inside the palm of your hand that connect your wrist to your fingers.",
+                hint: "These 5 bones form the middle structure (palm) of the hand, between the wrist and fingers."
+            },
+            {
+                id: "phalanges",
+                label: "Phalanges",
+                color: "pink",
+                x: 582, y: 542,
+                linePath: "M 505,514 L 512,514 L 512,548 L 505,548 M 512,531 L 525,542",
+                dot: { x: 512, y: 531 },
+                explanation: "Phalanges are the small bones that make up your fingers (and toes), allowing you to grip and pick up objects.",
+                hint: "Look at the bracket grouping the segmented bones of the fingers."
+            },
+            {
+                id: "femur",
+                label: "Femur",
+                color: "cyan",
+                x: 508, y: 578,
+                linePath: "M 388,554 L 451,578",
+                dot: { x: 388, y: 554 },
+                explanation: "The femur (thighbone) is the longest, heaviest, and strongest bone in the entire human body.",
+                hint: "This is the massive upper leg bone stretching from the hip down to the knee."
+            },
+            {
+                id: "patella",
+                label: "Patella",
+                color: "indigo",
+                x: 508, y: 656,
+                linePath: "M 382,656 L 451,656",
+                dot: { x: 382, y: 656 },
+                explanation: "The patella (kneecap) is a small shield-shaped bone that protects the front of your knee joint.",
+                hint: "Look right at the front of the knee joint for this small round kneecap."
+            },
+            {
+                id: "tibia",
+                label: "Tibia",
+                color: "amber",
+                x: 508, y: 735,
+                linePath: "M 378,735 L 451,735",
+                dot: { x: 378, y: 735 },
+                explanation: "The tibia (shinbone) is the thicker, weight-bearing bone of the lower leg located on the inner side.",
+                hint: "Compare the two lower leg bones—this is the thicker, stronger shinbone on the inside."
+            },
+            {
+                id: "fibula",
+                label: "Fibula",
+                color: "purple",
+                x: 508, y: 774,
+                linePath: "M 389,774 L 451,774",
+                dot: { x: 389, y: 774 },
+                explanation: "The fibula is the slender outer bone of the lower leg that helps stabilize your ankle muscles.",
+                hint: "Compare the two lower leg bones—this is the thin, slender bone along the outside of the calf."
+            },
+            {
+                id: "tarsals",
+                label: "Tarsals",
+                color: "teal",
+                x: 508, y: 848,
+                linePath: "M 392,848 L 451,848",
+                dot: { x: 392, y: 848 },
+                explanation: "The tarsals are a group of 7 ankle and heel bones that bear your body weight when standing and walking.",
+                hint: "This arrow points to the ankle and heel bones at the back of the foot."
+            },
+            {
+                id: "metatarsals",
+                label: "Metatarsals",
+                color: "orange",
+                x: 518, y: 886,
+                linePath: "M 398,870 L 461,886",
+                dot: { x: 398, y: 870 },
+                explanation: "The metatarsals are the 5 long bones in the arch/midfoot that connect your ankle to your toes.",
+                hint: "These 5 long bones form the middle arch of the foot, just before the toes."
+            }
+        ];
+
+        // Application State
+        let solvedIds = new Set();
+        let selectedChipId = null;
+        let attemptsCount = 0;
+
+        /**
+         * Initializes the interactive activity on load
+         */
+        function initActivity() {
+            solvedIds.clear();
+            selectedChipId = null;
+            attemptsCount = 0;
+            renderDropZones();
+            renderWordBank();
+            updateScoreUI();
+            document.getElementById('exit-ticket-section').classList.add('hidden');
+            document.getElementById('exit-ticket-input').value = '';
+            document.getElementById('copy-confirmation').classList.add('hidden');
+            document.getElementById('word-filter').value = '';
+            resetFeedbackCard();
+        }
+
+        /**
+         * Renders all 32 color-coded target drop zones and their matching SVG pointer lines
+         */
+        function renderDropZones() {
+            const layer = document.getElementById('drop-zones-layer');
+            const linesLayer = document.getElementById('pointer-lines-layer');
+            layer.innerHTML = '';
+            linesLayer.innerHTML = '';
+
+            SKELETON_DATA.forEach(item => {
+                const theme = COLOR_THEMES[item.color] || COLOR_THEMES.blue;
+
+                // 1. Render matching color-coded SVG pointer line + anchor dot on the bone
+                const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', item.linePath);
+                path.setAttribute('stroke', theme.stroke);
+                path.setAttribute('stroke-width', '2.1');
+                path.setAttribute('opacity', '0.88');
+                group.appendChild(path);
+
+                if (item.dot) {
+                    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    dot.setAttribute('cx', item.dot.x);
+                    dot.setAttribute('cy', item.dot.y);
+                    dot.setAttribute('r', '3.3');
+                    dot.setAttribute('fill', theme.stroke);
+                    dot.setAttribute('stroke', '#ffffff');
+                    dot.setAttribute('stroke-width', '1');
+                    group.appendChild(dot);
+                }
+
+                linesLayer.appendChild(group);
+
+                // 2. Render matching color-coded target drop box
+                const zone = document.createElement('button');
+                zone.type = 'button';
+                zone.id = `zone-${item.id}`;
+                zone.dataset.targetId = item.id;
+
+                // Position centered at (item.x, item.y)
+                zone.style.left = `${item.x}px`;
+                zone.style.top = `${item.y}px`;
+                zone.style.transform = 'translate(-50%, -50%)';
+                zone.style.backgroundColor = theme.bg;
+                zone.style.borderColor = theme.border;
+                zone.style.color = theme.text;
+
+                zone.className = 'drop-zone absolute px-2 py-0.5 min-w-[106px] max-w-[132px] h-[25px] rounded-md border-2 border-dashed text-[11px] font-semibold shadow-sm flex items-center justify-center truncate cursor-pointer focus:outline-none';
+                zone.innerHTML = `<span class="pointer-events-none opacity-85">Drop here</span>`;
+
+                // Drag & Drop Events
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!solvedIds.has(item.id)) {
+                        zone.classList.add('drag-over');
+                    }
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    const draggedId = e.dataTransfer.getData('text/plain');
+                    if (draggedId) {
+                        handleAttempt(draggedId, item.id);
+                    }
+                });
+
+                // Click/Tap accessibility support (for iPads, Chromebooks, mobile)
+                zone.addEventListener('click', () => {
+                    if (solvedIds.has(item.id)) {
+                        // Show explanation again if student clicks an already-solved bone
+                        showFeedback(
+                            'correct',
+                            `${item.label} — Already Mastered!`,
+                            item.explanation
+                        );
+                        return;
+                    }
+                    if (selectedChipId) {
+                        handleAttempt(selectedChipId, item.id);
+                    } else {
+                        showFeedback(
+                            'info',
+                            'Select a Bone Label First',
+                            'Tap or drag a bone name from the Word Bank on the right, then drop or tap it onto this target box!'
+                        );
+                    }
+                });
+
+                layer.appendChild(zone);
+            });
+        }
+
+        /**
+         * Renders shuffled draggable bone chips into the Word Bank
+         */
+        function renderWordBank() {
+            const bank = document.getElementById('word-bank');
+            bank.innerHTML = '';
+
+            // Shuffle a copy of SKELETON_DATA so order isn't trivial
+            const shuffled = [...SKELETON_DATA].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.id = `chip-${item.id}`;
+                chip.dataset.boneId = item.id;
+                chip.dataset.label = item.label.toLowerCase();
+                chip.draggable = true;
+                chip.textContent = item.label;
+                chip.className = 'bone-chip px-3 py-1.5 rounded-xl bg-white border-2 border-slate-300 text-slate-700 font-semibold text-xs sm:text-sm shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400';
+
+                // Drag start
+                chip.addEventListener('dragstart', (e) => {
+                    if (solvedIds.has(item.id)) {
+                        e.preventDefault();
+                        return;
+                    }
+                    e.dataTransfer.setData('text/plain', item.id);
+                    selectChip(item.id);
+                });
+
+                // Tap/Click selection toggle
+                chip.addEventListener('click', () => {
+                    if (solvedIds.has(item.id)) return;
+                    if (selectedChipId === item.id) {
+                        clearChipSelection();
+                    } else {
+                        selectChip(item.id);
+                    }
+                });
+
+                bank.appendChild(chip);
+            });
+        }
+
+        /**
+         * Highlights a selected chip and pulses open drop zones for tap-to-place convenience
+         */
+        function selectChip(boneId) {
+            clearChipSelection();
+            selectedChipId = boneId;
+            const chip = document.getElementById(`chip-${boneId}`);
+            if (chip) chip.classList.add('selected-chip');
+
+            document.querySelectorAll('.drop-zone').forEach(z => {
+                if (!solvedIds.has(z.dataset.targetId)) {
+                    z.classList.add('highlight-target');
+                }
+            });
+        }
+
+        function clearChipSelection() {
+            selectedChipId = null;
+            document.querySelectorAll('.bone-chip').forEach(c => c.classList.remove('selected-chip'));
+            document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('highlight-target'));
+        }
+
+        /**
+         * Evaluates a student's drop/tap match and delivers immediate visual & formative feedback
+         */
+        function handleAttempt(draggedId, targetId) {
+            if (solvedIds.has(targetId)) return;
+
+            const draggedBone = SKELETON_DATA.find(b => b.id === draggedId);
+            const targetBone = SKELETON_DATA.find(b => b.id === targetId);
+            const zoneEl = document.getElementById(`zone-${targetId}`);
+
+            if (!draggedBone || !targetBone || !zoneEl) return;
+
+            attemptsCount++;
+
+            if (draggedId === targetId) {
+                // CORRECT MATCH
+                solvedIds.add(targetId);
+                clearChipSelection();
+
+                // Clear inline color styling so emerald green mastery state shines clearly
+                zoneEl.style.backgroundColor = '';
+                zoneEl.style.borderColor = '';
+                zoneEl.style.color = '';
+                zoneEl.classList.remove('incorrect', 'border-dashed');
+                zoneEl.classList.add('correct', 'border-solid');
+                zoneEl.innerHTML = `<i class="fa-solid fa-check mr-1 text-[10px]"></i><span>${targetBone.label}</span>`;
+
+                // Mark chip as completed in word bank
+                const chipEl = document.getElementById(`chip-${draggedId}`);
+                if (chipEl) {
+                    chipEl.disabled = true;
+                    chipEl.draggable = false;
+                    chipEl.className = 'bone-chip px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium text-xs sm:text-sm line-through opacity-60 cursor-default';
+                }
+
+                // Formative Feedback: 1-sentence explanation of WHY it is correct
+                showFeedback(
+                    'correct',
+                    `Correct! ${targetBone.label}`,
+                    targetBone.explanation
+                );
+
+                updateScoreUI();
+            } else {
+                // INCORRECT MATCH
+                zoneEl.classList.remove('incorrect');
+                void zoneEl.offsetWidth; // trigger reflow to restart shake animation
+                zoneEl.classList.add('incorrect');
+                zoneEl.innerHTML = `<i class="fa-solid fa-xmark mr-1 text-[10px]"></i><span>Try again</span>`;
+
+                setTimeout(() => {
+                    if (!solvedIds.has(targetId)) {
+                        zoneEl.classList.remove('incorrect');
+                        zoneEl.innerHTML = `<span class="pointer-events-none opacity-85">Drop here</span>`;
+                    }
+                }, 1300);
+
+                // Formative Feedback: Guiding clue WITHOUT revealing the answer
+                showFeedback(
+                    'incorrect',
+                    `Not quite! "${draggedBone.label}" doesn't belong there.`,
+                    `Hint for this spot: ${targetBone.hint}`
+                );
+            }
+        }
+
+        /**
+         * Updates the Live Formative Feedback Card styling and copy
+         */
+        function showFeedback(type, title, message) {
+            const card = document.getElementById('feedback-card');
+            const iconBox = document.getElementById('feedback-icon');
+            const titleEl = document.getElementById('feedback-title');
+            const msgEl = document.getElementById('feedback-message');
+
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            if (type === 'correct') {
+                card.className = 'bg-emerald-50/90 rounded-3xl shadow-md border-2 border-emerald-400 p-5 transition-all duration-300';
+                iconBox.className = 'w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 text-lg';
+                iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                titleEl.className = 'text-base font-bold text-emerald-900';
+                msgEl.className = 'text-sm text-emerald-800 mt-1 leading-relaxed';
+            } else if (type === 'incorrect') {
+                card.className = 'bg-rose-50/90 rounded-3xl shadow-md border-2 border-rose-400 p-5 transition-all duration-300';
+                iconBox.className = 'w-10 h-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center flex-shrink-0 text-lg';
+                iconBox.innerHTML = '<i class="fa-solid fa-compass"></i>';
+                titleEl.className = 'text-base font-bold text-rose-900';
+                msgEl.className = 'text-sm text-rose-800 mt-1 leading-relaxed';
+            } else {
+                resetFeedbackCard();
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+            }
+        }
+
+        function resetFeedbackCard() {
+            const card = document.getElementById('feedback-card');
+            const iconBox = document.getElementById('feedback-icon');
+            const titleEl = document.getElementById('feedback-title');
+            const msgEl = document.getElementById('feedback-message');
+
+            card.className = 'bg-white rounded-3xl shadow-md border-2 border-indigo-100 p-5 transition-all duration-300';
+            iconBox.className = 'w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 text-lg';
+            iconBox.innerHTML = '<i class="fa-solid fa-lightbulb"></i>';
+            titleEl.className = 'text-base font-bold text-slate-800';
+            msgEl.className = 'text-sm text-slate-600 mt-1 leading-relaxed';
+        }
+
+        /**
+         * Updates scoreboard, progress bar, remaining counter, and unlocks Exit Ticket at 100%
+         */
+        function updateScoreUI() {
+            const total = SKELETON_DATA.length;
+            const current = solvedIds.size;
+            const percent = Math.round((current / total) * 100);
+
+            document.getElementById('score-display').textContent = `${current} / ${total}`;
+            document.getElementById('percent-display').textContent = `${percent}%`;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('remaining-count').textContent = `${total - current} remaining`;
+
+            if (current === total) {
+                const exitTicket = document.getElementById('exit-ticket-section');
+                exitTicket.classList.remove('hidden');
+                showFeedback(
+                    'correct',
+                    '🎉 100% Mastery Achieved!',
+                    'Amazing work! You correctly identified all 32 bones of the human skeletal system. Complete your Science Exit Ticket below to submit your reflection!'
+                );
+                // Smooth scroll to exit ticket on mobile/smaller viewports
+                setTimeout(() => {
+                    exitTicket.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 300);
+            }
+        }
+
+        /**
+         * Filters visible chips in the Word Bank
+         */
+        function filterWordBank(query) {
+            const q = query.trim().toLowerCase();
+            document.querySelectorAll('.bone-chip').forEach(chip => {
+                const label = chip.dataset.label || '';
+                if (label.includes(q)) {
+                    chip.classList.remove('hidden');
+                } else {
+                    chip.classList.add('hidden');
+                }
+            });
+        }
+
+        /**
+         * Copies Exit Ticket reflection + score summary to clipboard using execCommand fallback
+         */
+        function copyExitTicket(isFormRedirect = false) {
+            const responseText = document.getElementById('exit-ticket-input').value.trim();
+            if (!responseText && !isFormRedirect) {
+                showToast('Please type your reflection answer first!', 'fa-circle-exclamation', 'text-amber-400');
+                document.getElementById('exit-ticket-input').focus();
+                return;
+            }
+
+            const formattedSubmission =
+                `6th Grade Science - Skeletal System Lab\n` +
+                `Score: ${solvedIds.size}/${SKELETON_DATA.length} (100% Mastery)\n` +
+                `Exit Ticket Reflection:\n${responseText || '[Ready to type reflection in Google Form]'}`;
+
+            copyTextToClipboard(formattedSubmission);
+            document.getElementById('copy-confirmation').classList.remove('hidden');
+            showToast('Exit Ticket copied for Google Classroom!', 'fa-clipboard-check', 'text-emerald-400');
+        }
+
+        /**
+         * Reliable clipboard helper compatible with sandboxed iframes
+         */
+        function copyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            textArea.style.top = '0';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Fallback clipboard copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        /**
+         * Displays non-blocking toast notification
+         */
+        let toastTimeout;
+        function showToast(message, iconClass = 'fa-circle-check', colorClass = 'text-emerald-400') {
+            const banner = document.getElementById('toast-banner');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-text');
+
+            text.textContent = message;
+            icon.className = `fa-solid ${iconClass} ${colorClass}`;
+
+            banner.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                banner.classList.add('translate-y-24', 'opacity-0');
+            }, 3200);
+        }
+
+        function resetActivity() {
+            initActivity();
+            showToast('Lab reset! Ready for a fresh run.', 'fa-rotate-right', 'text-indigo-300');
+        }
+
+        // Start on page load
+        window.addEventListener('DOMContentLoaded', initActivity);
+    </script>
+</body>
+</html>
