@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6th Grade Science: Skeletal System Practice</title>
+    <title>6th Grade Science: Skeletal System Assessment</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Fredoka for friendly educational feel -->
@@ -114,7 +114,7 @@
             <div class="flex items-center gap-3 sm:gap-5 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200">
                 <div class="text-center">
                     <span class="block text-[10px] uppercase tracking-wider font-bold text-slate-400">Identified</span>
-                    <span id="score-display" class="text-lg sm:text-xl font-bold text-indigo-600">0 / 32</span>
+                    <span id="score-display" class="text-lg sm:text-xl font-bold text-indigo-600">0 / 23</span>
                 </div>
                 <div class="h-8 w-px bg-slate-200"></div>
                 <div class="w-24 sm:w-36">
@@ -150,7 +150,7 @@
 
             <!-- Scrollable wrapper on very small mobile screens so labels never squish -->
             <div class="w-full overflow-x-auto pb-2 flex justify-center">
-                <!-- Fixed Aspect Ratio Diagram Container matching Skeleton.png proportions & 32 target callouts -->
+                <!-- Fixed Aspect Ratio Diagram Container matching Skeleton.png proportions & 23 target callouts -->
                 <div id="diagram-container" class="relative w-[680px] h-[940px] bg-white rounded-2xl border-2 border-slate-200 shadow-inner select-none flex-shrink-0">
 
                     <!-- Title Header -->
@@ -310,17 +310,31 @@
                                 <circle cx="201" cy="487" r="3.6"/><circle cx="209" cy="488" r="3.6"/><circle cx="217" cy="489" r="3.6"/>
                             </g>
                             <!-- Metacarpals & Splayed Phalanges (Left Hand) -->
-                            <g stroke-width="2">
-                                <!-- Thumb (splayed outward) -->
-                                <line x1="198" y1="487" x2="181" y2="495"/><line x1="179" y1="496" x2="167" y2="503"/>
-                                <!-- Index -->
-                                <line x1="201" y1="491" x2="188" y2="513"/><line x1="187" y1="515" x2="179" y2="528"/><line x1="178" y1="530" x2="172" y2="540"/>
-                                <!-- Middle -->
-                                <line x1="207" y1="492" x2="197" y2="517"/><line x1="196" y1="519" x2="190" y2="534"/><line x1="189" y1="536" x2="184" y2="547"/>
-                                <!-- Ring -->
-                                <line x1="212" y1="492" x2="206" y2="516"/><line x1="205" y1="518" x2="201" y2="532"/><line x1="200" y1="534" x2="197" y2="544"/>
-                                <!-- Pinky -->
-                                <line x1="218" y1="491" x2="215" y2="511"/><line x1="214" y1="513" x2="212" y2="524"/><line x1="211" y1="526" x2="210" y2="535"/>
+                            <g stroke-width="1.35">
+                                <!-- Thumb (Metacarpal + Proximal & Distal Phalanges) -->
+                                <rect x="179.5" y="489.5" width="18" height="3.8" rx="1.8" transform="rotate(-24 188.5 491.4)"/>
+                                <rect x="168.5" y="495.5" width="10" height="3.4" rx="1.6" transform="rotate(-28 173.5 497.2)"/>
+                                <rect x="160.5" y="500.5" width="7.5" height="3" rx="1.5" transform="rotate(-30 164.2 502)"/>
+                                <!-- Index (Metacarpal + 3 Phalanges) -->
+                                <rect x="184" y="499.5" width="21" height="3.6" rx="1.7" transform="rotate(-60 194.5 501.3)"/>
+                                <rect x="176.5" y="514.5" width="12.5" height="3.2" rx="1.5" transform="rotate(-60 182.7 516.1)"/>
+                                <rect x="171.5" y="524.5" width="9.5" height="2.9" rx="1.4" transform="rotate(-60 176.2 525.9)"/>
+                                <rect x="167.5" y="532.5" width="7" height="2.6" rx="1.3" transform="rotate(-60 171 533.8)"/>
+                                <!-- Middle (Metacarpal + 3 Phalanges) -->
+                                <rect x="191.5" y="502.5" width="23" height="3.8" rx="1.8" transform="rotate(-68 203 504.4)"/>
+                                <rect x="185" y="519.5" width="14" height="3.4" rx="1.6" transform="rotate(-68 192 521.2)"/>
+                                <rect x="180.5" y="531" width="10.5" height="3" rx="1.5" transform="rotate(-68 185.7 532.5)"/>
+                                <rect x="177" y="540" width="7.5" height="2.7" rx="1.3" transform="rotate(-68 180.7 541.3)"/>
+                                <!-- Ring (Metacarpal + 3 Phalanges) -->
+                                <rect x="198.5" y="502" width="21.5" height="3.6" rx="1.7" transform="rotate(-76 209.2 503.8)"/>
+                                <rect x="194.5" y="518" width="13" height="3.2" rx="1.5" transform="rotate(-76 201 519.6)"/>
+                                <rect x="191.5" y="529" width="9.5" height="2.9" rx="1.4" transform="rotate(-76 196.2 530.4)"/>
+                                <rect x="189" y="537.5" width="7" height="2.6" rx="1.3" transform="rotate(-76 192.5 538.8)"/>
+                                <!-- Pinky (Metacarpal + 3 Phalanges) -->
+                                <rect x="206.5" y="499.5" width="18.5" height="3.4" rx="1.6" transform="rotate(-83 215.7 501.2)"/>
+                                <rect x="204.5" y="513" width="10.5" height="3" rx="1.5" transform="rotate(-83 209.7 514.5)"/>
+                                <rect x="203.5" y="522" width="8" height="2.7" rx="1.3" transform="rotate(-83 207.5 523.3)"/>
+                                <rect x="202.5" y="529.5" width="6" height="2.4" rx="1.2" transform="rotate(-83 205.5 530.7)"/>
                             </g>
 
                             <!-- VIEWER'S RIGHT ARM -->
@@ -335,17 +349,31 @@
                                 <circle cx="479" cy="487" r="3.6"/><circle cx="471" cy="488" r="3.6"/><circle cx="463" cy="489" r="3.6"/>
                             </g>
                             <!-- Metacarpals & Splayed Phalanges (Right Hand) -->
-                            <g stroke-width="2">
-                                <!-- Thumb (splayed outward) -->
-                                <line x1="482" y1="487" x2="499" y2="495"/><line x1="501" y1="496" x2="513" y2="503"/>
-                                <!-- Index -->
-                                <line x1="479" y1="491" x2="492" y2="513"/><line x1="493" y1="515" x2="501" y2="528"/><line x1="502" y1="530" x2="508" y2="540"/>
-                                <!-- Middle -->
-                                <line x1="473" y1="492" x2="483" y2="517"/><line x1="484" y1="519" x2="490" y2="534"/><line x1="491" y1="536" x2="496" y2="547"/>
-                                <!-- Ring -->
-                                <line x1="468" y1="492" x2="474" y2="516"/><line x1="475" y1="518" x2="479" y2="532"/><line x1="480" y1="534" x2="483" y2="544"/>
-                                <!-- Pinky -->
-                                <line x1="462" y1="491" x2="465" y2="511"/><line x1="466" y1="513" x2="468" y2="524"/><line x1="469" y1="526" x2="470" y2="535"/>
+                            <g stroke-width="1.35">
+                                <!-- Thumb (Metacarpal + Proximal & Distal Phalanges) -->
+                                <rect x="482.5" y="489.5" width="18" height="3.8" rx="1.8" transform="rotate(24 491.5 491.4)"/>
+                                <rect x="501.5" y="495.5" width="10" height="3.4" rx="1.6" transform="rotate(28 506.5 497.2)"/>
+                                <rect x="512" y="500.5" width="7.5" height="3" rx="1.5" transform="rotate(30 515.7 502)"/>
+                                <!-- Index (Metacarpal + 3 Phalanges) -->
+                                <rect x="475" y="499.5" width="21" height="3.6" rx="1.7" transform="rotate(60 485.5 501.3)"/>
+                                <rect x="491" y="514.5" width="12.5" height="3.2" rx="1.5" transform="rotate(60 497.2 516.1)"/>
+                                <rect x="499" y="524.5" width="9.5" height="2.9" rx="1.4" transform="rotate(60 503.7 525.9)"/>
+                                <rect x="505.5" y="532.5" width="7" height="2.6" rx="1.3" transform="rotate(60 509 533.8)"/>
+                                <!-- Middle (Metacarpal + 3 Phalanges) -->
+                                <rect x="465.5" y="502.5" width="23" height="3.8" rx="1.8" transform="rotate(68 477 504.4)"/>
+                                <rect x="481" y="519.5" width="14" height="3.4" rx="1.6" transform="rotate(68 488 521.2)"/>
+                                <rect x="489" y="531" width="10.5" height="3" rx="1.5" transform="rotate(68 494.2 532.5)"/>
+                                <rect x="495.5" y="540" width="7.5" height="2.7" rx="1.3" transform="rotate(68 499.2 541.3)"/>
+                                <!-- Ring (Metacarpal + 3 Phalanges) -->
+                                <rect x="460" y="502" width="21.5" height="3.6" rx="1.7" transform="rotate(76 470.7 503.8)"/>
+                                <rect x="472.5" y="518" width="13" height="3.2" rx="1.5" transform="rotate(76 479 519.6)"/>
+                                <rect x="479" y="529" width="9.5" height="2.9" rx="1.4" transform="rotate(76 483.7 530.4)"/>
+                                <rect x="484" y="537.5" width="7" height="2.6" rx="1.3" transform="rotate(76 487.5 538.8)"/>
+                                <!-- Pinky (Metacarpal + 3 Phalanges) -->
+                                <rect x="455" y="499.5" width="18.5" height="3.4" rx="1.6" transform="rotate(83 464.2 501.2)"/>
+                                <rect x="465" y="513" width="10.5" height="3" rx="1.5" transform="rotate(83 470.2 514.5)"/>
+                                <rect x="468.5" y="522" width="8" height="2.7" rx="1.3" transform="rotate(83 472.5 523.3)"/>
+                                <rect x="471.5" y="529.5" width="6" height="2.4" rx="1.2" transform="rotate(83 474.5 530.7)"/>
                             </g>
 
                             <!-- 10. LOWER LIMBS (Femur, Patella, Tibia, Fibula, Tarsals, Metatarsals & Toes) -->
@@ -364,12 +392,27 @@
                                 <path d="M 286,854 L 316,854 L 318,862 L 283,862 Z"/>
                             </g>
                             <!-- Metatarsals & Toes (Left Foot) -->
-                            <g stroke-width="2">
-                                <line x1="285" y1="862" x2="278" y2="878"/><line x1="277" y1="880" x2="275" y2="887"/>
-                                <line x1="292" y1="862" x2="287" y2="880"/><line x1="286" y1="882" x2="285" y2="889"/>
-                                <line x1="299" y1="862" x2="296" y2="880"/><line x1="295" y1="882" x2="294" y2="889"/>
-                                <line x1="306" y1="862" x2="305" y2="880"/><line x1="305" y1="882" x2="304" y2="889"/>
-                                <line x1="313" y1="862" x2="314" y2="879" stroke-width="2.6"/><line x1="314" y1="881" x2="315" y2="888" stroke-width="2.6"/>
+                            <g stroke-width="1.35">
+                                <!-- Pinky Toe (5th) -->
+                                <rect x="275.5" y="868" width="14" height="3.4" rx="1.6" transform="rotate(-70 282.5 869.7)"/>
+                                <rect x="275.5" y="877.5" width="5.5" height="2.8" rx="1.4" transform="rotate(-75 278.2 878.9)"/>
+                                <rect x="274.2" y="883" width="4.5" height="2.5" rx="1.2" transform="rotate(-78 276.4 884.2)"/>
+                                <!-- 4th Toe -->
+                                <rect x="282.5" y="868.5" width="15" height="3.4" rx="1.6" transform="rotate(-75 290 870.2)"/>
+                                <rect x="284" y="878.5" width="6" height="2.9" rx="1.4" transform="rotate(-78 287 879.9)"/>
+                                <rect x="283" y="884.5" width="5" height="2.6" rx="1.3" transform="rotate(-80 285.5 885.8)"/>
+                                <!-- 3rd Toe -->
+                                <rect x="289.5" y="868.5" width="16" height="3.6" rx="1.7" transform="rotate(-80 297.5 870.3)"/>
+                                <rect x="292.5" y="879" width="6.5" height="3" rx="1.4" transform="rotate(-82 295.7 880.5)"/>
+                                <rect x="291.8" y="885.5" width="5.2" height="2.7" rx="1.3" transform="rotate(-84 294.4 886.8)"/>
+                                <!-- 2nd Toe -->
+                                <rect x="297" y="868.5" width="17" height="3.8" rx="1.8" transform="rotate(-85 305.5 870.4)"/>
+                                <rect x="301" y="879.5" width="7" height="3.1" rx="1.5" transform="rotate(-86 304.5 881)"/>
+                                <rect x="300.5" y="886.5" width="5.5" height="2.8" rx="1.4" transform="rotate(-87 303.2 887.9)"/>
+                                <!-- Big Toe (Hallux - thicker Metatarsal + 2 large Phalanges) -->
+                                <rect x="304.5" y="868.5" width="17" height="5" rx="2.3" transform="rotate(-88 313 871)"/>
+                                <rect x="309" y="879.5" width="8.5" height="4.4" rx="2" transform="rotate(-88 313.2 881.7)"/>
+                                <rect x="310" y="887.5" width="7" height="4" rx="1.9" transform="rotate(-88 313.5 889.5)"/>
                             </g>
 
                             <!-- VIEWER'S RIGHT LEG -->
@@ -387,12 +430,27 @@
                                 <path d="M 364,854 L 394,854 L 397,862 L 362,862 Z"/>
                             </g>
                             <!-- Metatarsals & Toes (Right Foot) -->
-                            <g stroke-width="2">
-                                <line x1="367" y1="862" x2="366" y2="879" stroke-width="2.6"/><line x1="366" y1="881" x2="365" y2="888" stroke-width="2.6"/>
-                                <line x1="374" y1="862" x2="375" y2="880"/><line x1="375" y1="882" x2="376" y2="889"/>
-                                <line x1="381" y1="862" x2="384" y2="880"/><line x1="385" y1="882" x2="386" y2="889"/>
-                                <line x1="388" y1="862" x2="393" y2="880"/><line x1="394" y1="882" x2="395" y2="889"/>
-                                <line x1="395" y1="862" x2="402" y2="878"/><line x1="403" y1="880" x2="405" y2="887"/>
+                            <g stroke-width="1.35">
+                                <!-- Big Toe (Hallux - thicker Metatarsal + 2 large Phalanges) -->
+                                <rect x="358.5" y="868.5" width="17" height="5" rx="2.3" transform="rotate(88 367 871)"/>
+                                <rect x="362.5" y="879.5" width="8.5" height="4.4" rx="2" transform="rotate(88 366.7 881.7)"/>
+                                <rect x="363" y="887.5" width="7" height="4" rx="1.9" transform="rotate(88 366.5 889.5)"/>
+                                <!-- 2nd Toe -->
+                                <rect x="366" y="868.5" width="17" height="3.8" rx="1.8" transform="rotate(85 374.5 870.4)"/>
+                                <rect x="372" y="879.5" width="7" height="3.1" rx="1.5" transform="rotate(86 375.5 881)"/>
+                                <rect x="374" y="886.5" width="5.5" height="2.8" rx="1.4" transform="rotate(87 376.7 887.9)"/>
+                                <!-- 3rd Toe -->
+                                <rect x="374.5" y="868.5" width="16" height="3.6" rx="1.7" transform="rotate(80 382.5 870.3)"/>
+                                <rect x="381" y="879" width="6.5" height="3" rx="1.4" transform="rotate(82 384.2 880.5)"/>
+                                <rect x="383" y="885.5" width="5.2" height="2.7" rx="1.3" transform="rotate(84 385.6 886.8)"/>
+                                <!-- 4th Toe -->
+                                <rect x="382.5" y="868.5" width="15" height="3.4" rx="1.6" transform="rotate(75 390 870.2)"/>
+                                <rect x="390" y="878.5" width="6" height="2.9" rx="1.4" transform="rotate(78 393 879.9)"/>
+                                <rect x="392" y="884.5" width="5" height="2.6" rx="1.3" transform="rotate(80 394.5 885.8)"/>
+                                <!-- Pinky Toe (5th) -->
+                                <rect x="390.5" y="868" width="14" height="3.4" rx="1.6" transform="rotate(70 397.5 869.7)"/>
+                                <rect x="399" y="877.5" width="5.5" height="2.8" rx="1.4" transform="rotate(75 401.7 878.9)"/>
+                                <rect x="401.3" y="883" width="4.5" height="2.5" rx="1.2" transform="rotate(78 403.5 884.2)"/>
                             </g>
                         </g>
 
@@ -430,7 +488,7 @@
                     <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-tags text-indigo-500"></i> Bone Word Bank
                     </h2>
-                    <span id="remaining-count" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">32 remaining</span>
+                    <span id="remaining-count" class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">23 remaining</span>
                 </div>
 
                 <!-- Search/Filter helper for quick finding -->
@@ -506,47 +564,37 @@
         };
 
         /**
-         * Complete dataset of all 32 bones from the teacher's reference diagram.
-         * Coordinates (x, y) align directly with the updated Skeleton.png vector geometry.
+         * Streamlined dataset of 23 bones for 6th-grade science.
+         * Coordinates (x, y) align directly with the Skeleton.png vector geometry.
          * Neighboring callouts are strictly assigned distinct color keys.
          */
         const SKELETON_DATA = [
-            // LEFT SIDE TARGETS (Top-to-Bottom: blue -> amber -> purple -> teal -> orange -> indigo -> pink -> cyan -> amber -> purple -> teal -> orange -> indigo)
+            // LEFT SIDE TARGETS (Top-to-Bottom: blue -> amber -> teal -> orange -> indigo -> pink -> purple)
             {
-                id: "skull",
-                label: "Skull",
+                id: "cranium",
+                label: "Cranium",
                 color: "blue",
-                x: 190, y: 106,
-                linePath: "M 298,58 L 290,58 L 290,158 L 298,158 M 290,106 L 247,106",
-                dot: { x: 290, y: 106 },
-                explanation: "The skull is the entire bony structure of the head that surrounds and protects your brain and sensory organs.",
-                hint: "Look at the big bracket on the upper left—it groups all the bones of the head together!"
+                x: 185, y: 98,
+                linePath: "M 311,94 L 247,98",
+                dot: { x: 311, y: 94 },
+                explanation: "The cranium is the rounded, helmet-like upper part of the skull that surrounds and protects your brain.",
+                hint: "Look at the upper rounded dome of the head that acts like a helmet around the brain."
             },
             {
                 id: "mandible",
                 label: "Mandible",
                 color: "amber",
-                x: 190, y: 142,
-                linePath: "M 320,150 L 247,142",
+                x: 185, y: 146,
+                linePath: "M 320,150 L 247,146",
                 dot: { x: 320, y: 150 },
                 explanation: "The mandible is your lower jawbone and is the only freely movable bone of the skull, allowing you to chew and speak.",
                 hint: "This arrow points to the movable lower jawbone at the bottom of the face."
             },
             {
-                id: "maxilla",
-                label: "Maxilla",
-                color: "purple",
-                x: 190, y: 174,
-                linePath: "M 326,136 L 247,174",
-                dot: { x: 326, y: 136 },
-                explanation: "The maxilla forms your upper jaw, holding your top teeth and forming the floor of your eye sockets and nose.",
-                hint: "This arrow points right above the upper teeth—think of the fixed upper jawbone."
-            },
-            {
                 id: "sternum",
                 label: "Sternum",
                 color: "teal",
-                x: 190, y: 234,
+                x: 185, y: 234,
                 linePath: "M 339,234 L 247,234",
                 dot: { x: 339, y: 234 },
                 explanation: "The sternum (breastbone) is a flat, necktie-shaped bone in the center of your chest that anchors your ribs.",
@@ -556,8 +604,8 @@
                 id: "ribs",
                 label: "Ribs",
                 color: "orange",
-                x: 190, y: 266,
-                linePath: "M 278,266 L 247,266",
+                x: 185, y: 274,
+                linePath: "M 278,266 L 247,274",
                 dot: { x: 278, y: 266 },
                 explanation: "Your curved ribs form a protective cage around vital organs like your heart and lungs while expanding when you breathe.",
                 hint: "These curved, cage-like bones wrap around the chest to shield the heart and lungs."
@@ -566,8 +614,8 @@
                 id: "thoracic",
                 label: "Thoracic vertebrae",
                 color: "indigo",
-                x: 180, y: 310,
-                linePath: "M 333,298 L 241,310",
+                x: 175, y: 318,
+                linePath: "M 333,298 L 241,318",
                 dot: { x: 333, y: 298 },
                 explanation: "The thoracic vertebrae are the 12 middle spine bones in your upper back that connect directly to your ribs.",
                 hint: "Follow the arrow to the middle section of the backbone, right behind the rib cage."
@@ -576,120 +624,30 @@
                 id: "lumbar",
                 label: "Lumbar vertebrae",
                 color: "pink",
-                x: 180, y: 356,
-                linePath: "M 326,352 L 241,356",
+                x: 175, y: 364,
+                linePath: "M 326,352 L 241,364",
                 dot: { x: 326, y: 352 },
                 explanation: "The lumbar vertebrae are the 5 largest, strongest spine bones in your lower back that support most of your upper body weight.",
                 hint: "These thick spine bones are located in the lower back, between the ribs and the hips."
             },
             {
-                id: "sacrum",
-                label: "Sacrum",
-                color: "cyan",
-                x: 190, y: 398,
-                linePath: "M 333,396 L 247,398",
-                dot: { x: 333, y: 396 },
-                explanation: "The sacrum is a triangular shield-shaped bone at the base of the spine that connects your backbone to your hip bones.",
-                hint: "Look for the wide, triangle-shaped bone wedged right between the two large hip blades."
-            },
-            {
-                id: "coccyx",
-                label: "Coccyx",
-                color: "amber",
-                x: 190, y: 434,
-                linePath: "M 339,437 L 247,434",
-                dot: { x: 339, y: 437 },
-                explanation: "The coccyx, commonly called the tailbone, is the very bottom tip of your vertebral column.",
-                hint: "This tiny bone sits at the very bottom tip of the spine, right below the triangular sacrum."
-            },
-            {
-                id: "pelvic_girdle",
-                label: "Pelvic girdle",
+                id: "pelvis",
+                label: "Pelvis",
                 color: "purple",
-                x: 155, y: 476,
-                linePath: "M 279,420 L 212,476",
-                dot: { x: 279, y: 420 },
-                explanation: "The pelvic girdle is the basin-like ring of hip bones that supports your spine and protects lower abdominal organs.",
-                hint: "This arrow points to the large bowl-shaped hip structure that connects the trunk to the legs."
-            },
-            {
-                id: "ilium",
-                label: "Ilium",
-                color: "teal",
-                x: 135, y: 522,
-                linePath: "M 290,392 L 192,522",
-                dot: { x: 290, y: 392 },
-                explanation: "The ilium is the large, flared upper wing of the hip bone that you can feel when you put your hands on your hips.",
-                hint: "Follow the arrow up to the big, fan-shaped upper wing of the hip bone."
-            },
-            {
-                id: "ischium",
-                label: "Ischium",
-                color: "orange",
-                x: 165, y: 566,
-                linePath: "M 310,464 L 222,566",
-                dot: { x: 310, y: 464 },
-                explanation: "The ischium is the curved lower-back portion of the hip bone—it is literally the 'sit bone' that supports your weight when seated.",
-                hint: "Follow this long arrow to the lower-back loop of the hip bone that you sit on."
-            },
-            {
-                id: "pubis",
-                label: "Pubis",
-                color: "indigo",
-                x: 188, y: 608,
-                linePath: "M 335,453 L 245,608",
-                dot: { x: 335, y: 453 },
-                explanation: "The pubis is the front portion of the hip bone where the left and right sides of the pelvis meet.",
-                hint: "Follow this arrow to the front-center bottom part of the hip bone."
+                x: 185, y: 424,
+                linePath: "M 279,418 L 247,424",
+                dot: { x: 279, y: 418 },
+                explanation: "The pelvis is the basin-like ring of hip bones that supports your spine, protects lower organs, and connects your legs to your trunk.",
+                hint: "This pointer leads to the large bowl-shaped hip structure at the base of the spine."
             },
 
-            // RIGHT SIDE TARGETS (Top-to-Bottom: cyan -> pink -> amber -> purple -> teal -> orange -> indigo -> blue -> amber -> purple -> teal -> orange -> pink -> cyan -> indigo -> amber -> purple -> teal -> orange)
-            {
-                id: "frontal",
-                label: "Frontal bone",
-                color: "cyan",
-                x: 498, y: 68,
-                linePath: "M 348,76 L 441,68",
-                dot: { x: 348, y: 76 },
-                explanation: "The frontal bone forms your forehead and the upper part of your eye sockets.",
-                hint: "Look at the very front and top of the skull—right where your forehead is!"
-            },
-            {
-                id: "parietal",
-                label: "Parietal bone",
-                color: "pink",
-                x: 498, y: 98,
-                linePath: "M 366,86 L 441,98",
-                dot: { x: 366, y: 86 },
-                explanation: "The parietal bones form the upper sides and roof of your cranium, protecting the top of your brain.",
-                hint: "This arrow points to the large upper-side wall of the skull, behind the forehead."
-            },
-            {
-                id: "temporal",
-                label: "Temporal bone",
-                color: "amber",
-                x: 498, y: 128,
-                linePath: "M 368,108 L 441,128",
-                dot: { x: 368, y: 108 },
-                explanation: "The temporal bone sits on the lower side of the skull near your temples and ears, housing delicate hearing structures.",
-                hint: "Think about the side of your head right near your ears and temples."
-            },
-            {
-                id: "occipital",
-                label: "Occipital bone",
-                color: "purple",
-                x: 498, y: 158,
-                linePath: "M 362,124 L 441,158",
-                dot: { x: 362, y: 124 },
-                explanation: "The occipital bone forms the back and base of your skull, where your head balances on top of your spine.",
-                hint: "This arrow points to the lower back base of the skull, just above the neck."
-            },
+            // RIGHT SIDE TARGETS (Top-to-Bottom: teal -> orange -> indigo -> blue -> amber -> purple -> teal -> orange -> pink -> cyan -> indigo -> amber -> purple -> teal -> orange -> pink)
             {
                 id: "cervical",
                 label: "Cervical vertebrae",
                 color: "teal",
-                x: 508, y: 190,
-                linePath: "M 360,167 L 366,167 L 366,202 L 360,202 M 366,184 L 447,190",
+                x: 508, y: 176,
+                linePath: "M 360,167 L 366,167 L 366,202 L 360,202 M 366,184 L 442,176",
                 dot: { x: 366, y: 184 },
                 explanation: "The 7 cervical vertebrae make up your neck, supporting your head and allowing you to nod and turn.",
                 hint: "Look at the bracket pointing to the 7 small spine bones in the neck."
@@ -698,8 +656,8 @@
                 id: "clavicle",
                 label: "Clavicle",
                 color: "orange",
-                x: 508, y: 222,
-                linePath: "M 398,204 L 451,222",
+                x: 508, y: 214,
+                linePath: "M 398,204 L 446,214",
                 dot: { x: 398, y: 204 },
                 explanation: "The clavicle (collarbone) acts like a strut holding your shoulder out to the side so your arm can swing freely.",
                 hint: "This S-shaped collarbone stretches horizontally from the top of the chest to the shoulder."
@@ -708,8 +666,8 @@
                 id: "scapula",
                 label: "Scapula",
                 color: "indigo",
-                x: 508, y: 256,
-                linePath: "M 407,246 L 451,256",
+                x: 508, y: 252,
+                linePath: "M 407,246 L 446,252",
                 dot: { x: 407, y: 246 },
                 explanation: "The scapula (shoulder blade) is a flat, triangular bone on your upper back that anchors shoulder and arm muscles.",
                 hint: "Look behind the upper ribs for the flat, triangle-shaped shoulder blade."
@@ -718,8 +676,8 @@
                 id: "humerus",
                 label: "Humerus",
                 color: "blue",
-                x: 520, y: 306,
-                linePath: "M 435,292 L 463,306",
+                x: 520, y: 304,
+                linePath: "M 435,292 L 458,304",
                 dot: { x: 435, y: 292 },
                 explanation: "The humerus is the single long bone of your upper arm, stretching from your shoulder socket down to your elbow.",
                 hint: "This is the single long bone in the upper arm between the shoulder and elbow."
@@ -728,8 +686,8 @@
                 id: "radius",
                 label: "Radius",
                 color: "amber",
-                x: 545, y: 396,
-                linePath: "M 458,402 L 488,396",
+                x: 545, y: 394,
+                linePath: "M 458,402 L 483,394",
                 dot: { x: 458, y: 402 },
                 explanation: "The radius is the forearm bone on the thumb side that rotates over the ulna when you turn your palm up or down.",
                 hint: "Look at the two forearm bones—this one is on the outer (thumb) side."
@@ -739,7 +697,7 @@
                 label: "Ulna",
                 color: "purple",
                 x: 545, y: 430,
-                linePath: "M 448,434 L 488,430",
+                linePath: "M 448,434 L 483,430",
                 dot: { x: 448, y: 434 },
                 explanation: "The ulna is the inner forearm bone (pinky side) that forms the sharp point of your elbow hinge.",
                 hint: "Look at the two forearm bones—this one is on the inner (pinky) side."
@@ -749,37 +707,37 @@
                 label: "Carpals",
                 color: "teal",
                 x: 562, y: 468,
-                linePath: "M 476,481 L 505,468",
+                linePath: "M 476,481 L 500,468",
                 dot: { x: 476, y: 481 },
                 explanation: "The carpals are a cluster of 8 small wrist bones that glide together so your hand can bend in many directions.",
-                hint: "This arrow points right to the cluster of tiny bones in the wrist."
+                hint: "This pointer leads right to the cluster of tiny bones in the wrist."
             },
             {
                 id: "metacarpals",
                 label: "Metacarpals",
                 color: "orange",
                 x: 572, y: 504,
-                linePath: "M 484,502 L 515,504",
+                linePath: "M 484,502 L 510,504",
                 dot: { x: 484, y: 502 },
                 explanation: "The metacarpals are the 5 long bones inside the palm of your hand that connect your wrist to your fingers.",
                 hint: "These 5 bones form the middle structure (palm) of the hand, between the wrist and fingers."
             },
             {
-                id: "phalanges",
-                label: "Phalanges",
+                id: "upper_phalanges",
+                label: "Upper phalanges",
                 color: "pink",
-                x: 582, y: 542,
-                linePath: "M 505,514 L 512,514 L 512,548 L 505,548 M 512,531 L 525,542",
+                x: 576, y: 546,
+                linePath: "M 505,514 L 512,514 L 512,548 L 505,548 M 512,531 L 518,546",
                 dot: { x: 512, y: 531 },
-                explanation: "Phalanges are the small bones that make up your fingers (and toes), allowing you to grip and pick up objects.",
-                hint: "Look at the bracket grouping the segmented bones of the fingers."
+                explanation: "The upper phalanges are the 14 small finger bones in each hand that bend at the knuckles so you can grip, write, and pick things up.",
+                hint: "Look at the bracket grouping the segmented bones of the fingers on the hand."
             },
             {
                 id: "femur",
                 label: "Femur",
                 color: "cyan",
-                x: 508, y: 578,
-                linePath: "M 388,554 L 451,578",
+                x: 508, y: 588,
+                linePath: "M 388,554 L 446,588",
                 dot: { x: 388, y: 554 },
                 explanation: "The femur (thighbone) is the longest, heaviest, and strongest bone in the entire human body.",
                 hint: "This is the massive upper leg bone stretching from the hip down to the knee."
@@ -789,7 +747,7 @@
                 label: "Patella",
                 color: "indigo",
                 x: 508, y: 656,
-                linePath: "M 382,656 L 451,656",
+                linePath: "M 382,656 L 446,656",
                 dot: { x: 382, y: 656 },
                 explanation: "The patella (kneecap) is a small shield-shaped bone that protects the front of your knee joint.",
                 hint: "Look right at the front of the knee joint for this small round kneecap."
@@ -798,9 +756,9 @@
                 id: "tibia",
                 label: "Tibia",
                 color: "amber",
-                x: 508, y: 735,
-                linePath: "M 378,735 L 451,735",
-                dot: { x: 378, y: 735 },
+                x: 508, y: 730,
+                linePath: "M 378,730 L 446,730",
+                dot: { x: 378, y: 730 },
                 explanation: "The tibia (shinbone) is the thicker, weight-bearing bone of the lower leg located on the inner side.",
                 hint: "Compare the two lower leg bones—this is the thicker, stronger shinbone on the inside."
             },
@@ -808,9 +766,9 @@
                 id: "fibula",
                 label: "Fibula",
                 color: "purple",
-                x: 508, y: 774,
-                linePath: "M 389,774 L 451,774",
-                dot: { x: 389, y: 774 },
+                x: 508, y: 768,
+                linePath: "M 389,768 L 446,768",
+                dot: { x: 389, y: 768 },
                 explanation: "The fibula is the slender outer bone of the lower leg that helps stabilize your ankle muscles.",
                 hint: "Compare the two lower leg bones—this is the thin, slender bone along the outside of the calf."
             },
@@ -818,21 +776,31 @@
                 id: "tarsals",
                 label: "Tarsals",
                 color: "teal",
-                x: 508, y: 848,
-                linePath: "M 392,848 L 451,848",
-                dot: { x: 392, y: 848 },
+                x: 508, y: 834,
+                linePath: "M 392,846 L 446,834",
+                dot: { x: 392, y: 846 },
                 explanation: "The tarsals are a group of 7 ankle and heel bones that bear your body weight when standing and walking.",
-                hint: "This arrow points to the ankle and heel bones at the back of the foot."
+                hint: "This pointer leads to the ankle and heel bones at the back of the foot."
             },
             {
                 id: "metatarsals",
                 label: "Metatarsals",
                 color: "orange",
-                x: 518, y: 886,
-                linePath: "M 398,870 L 461,886",
-                dot: { x: 398, y: 870 },
+                x: 518, y: 870,
+                linePath: "M 398,868 L 456,870",
+                dot: { x: 398, y: 868 },
                 explanation: "The metatarsals are the 5 long bones in the arch/midfoot that connect your ankle to your toes.",
                 hint: "These 5 long bones form the middle arch of the foot, just before the toes."
+            },
+            {
+                id: "lower_phalanges",
+                label: "Lower phalanges",
+                color: "pink",
+                x: 526, y: 908,
+                linePath: "M 405,886 L 468,908",
+                dot: { x: 405, y: 886 },
+                explanation: "The lower phalanges are the 14 small toe bones in each foot that help you balance and push off the ground when you walk or run.",
+                hint: "Follow this pointer all the way down to the segmented bones of the toes on the foot."
             }
         ];
 
@@ -907,7 +875,7 @@
                 zone.style.borderColor = theme.border;
                 zone.style.color = theme.text;
 
-                zone.className = 'drop-zone absolute px-2 py-0.5 min-w-[106px] max-w-[132px] h-[25px] rounded-md border-2 border-dashed text-[11px] font-semibold shadow-sm flex items-center justify-center truncate cursor-pointer focus:outline-none';
+                zone.className = 'drop-zone absolute px-2 py-0.5 min-w-[116px] max-w-[156px] min-h-[26px] rounded-md border-2 border-dashed text-[11px] leading-tight font-semibold shadow-sm flex items-center justify-center text-center cursor-pointer focus:outline-none';
                 zone.innerHTML = `<span class="pointer-events-none opacity-85">Drop here</span>`;
 
                 // Drag & Drop Events
@@ -1152,7 +1120,7 @@
                 showFeedback(
                     'correct',
                     '🎉 100% Mastery Achieved!',
-                    'Amazing work! You correctly identified all 32 bones of the human skeletal system. Complete your Science Exit Ticket below to submit your reflection!'
+                    `Amazing work! You correctly identified all ${total} bones of the human skeletal system. Complete your Science Exit Ticket below to submit your reflection!`
                 );
                 // Smooth scroll to exit ticket on mobile/smaller viewports
                 setTimeout(() => {
